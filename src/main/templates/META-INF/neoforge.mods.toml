@@ -46,7 +46,7 @@ authors="tagtart"
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''
-Motivating people to explore new foods with the carrot, not the stick.
+Motivating people to explore new foods with the stick, not the carrot.
 '''
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
@@ -87,6 +87,13 @@ config="${mod_id}.mixins.json"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="appleskin"
+    type="optional"
+    versionRange="[3.0.8,)"
+    ordering="AFTER"
+    side="CLIENT"
 
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't

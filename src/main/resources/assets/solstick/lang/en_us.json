@@ -1,0 +1,13 @@
+{
+  "itemGroup.solstick": "Example Mod Tab",
+  "block.solstick.example_block": "Example Block",
+  "item.solstick.example_item": "Example Item",
+
+  "solstick.configuration.title": "SOLStick Configs",
+  "solstick.configuration.section.solstick.common.toml": "SOLStick Configs",
+  "solstick.configuration.section.solstick.common.toml.title": "SOLStick Configs",
+  "solstick.configuration.items": "Item List",
+  "solstick.configuration.logDirtBlock": "Log Dirt Block",
+  "solstick.configuration.magicNumberIntroduction": "Magic Number Text",
+  "solstick.configuration.magicNumber": "Magic Number"
+}

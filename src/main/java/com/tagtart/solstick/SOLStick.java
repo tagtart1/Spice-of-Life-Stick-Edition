@@ -1,5 +1,7 @@
 package com.tagtart.solstick;
 
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -42,10 +44,15 @@ public class SOLStick {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
 
+        ModAttachments.register(modEventBus);
+
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
 
     }
+
+
 }

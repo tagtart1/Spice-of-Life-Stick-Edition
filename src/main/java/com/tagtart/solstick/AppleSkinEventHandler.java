@@ -8,5 +8,6 @@ public class AppleSkinEventHandler {
     @SubscribeEvent
     public void onFoodValuesEvent(FoodValuesEvent event) {
         SOLStick.LOGGER.info("Food values received");
+
     }
 }

@@ -8,15 +8,21 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 import java.util.function.Supplier;
 
-
 public class ModAttachments {
-    private static final DeferredRegister<AttachmentType<?>> MOD_ATTACHMENTS = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, SOLStick.MODID);
+        private static final DeferredRegister<AttachmentType<?>> MOD_ATTACHMENTS = DeferredRegister
+                        .create(NeoForgeRegistries.ATTACHMENT_TYPES, SOLStick.MODID);
 
-    public static final Supplier<AttachmentType<Integer>> TEST_ATTACHMENT = MOD_ATTACHMENTS.register(
-            "test_attachment", () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build()
-    );
+        public static final Supplier<AttachmentType<Integer>> TEST_ATTACHMENT = MOD_ATTACHMENTS.register(
+                        "test_attachment",
+                        () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
-    public static void register(IEventBus modBus) {
-        MOD_ATTACHMENTS.register(modBus);
-    }
+        public static final Supplier<AttachmentType<PlayerStomach>> PLAYER_STOMACH = MOD_ATTACHMENTS.register(
+                        "player_stomach", () -> AttachmentType.builder(PlayerStomach::new)
+                                        .serialize(PlayerStomach.CODEC).copyOnDeath()
+                                        .sync(PlayerStomach.STREAM_CODEC)
+                                        .build());
+
+        public static void register(IEventBus modBus) {
+                MOD_ATTACHMENTS.register(modBus);
+        }
 }

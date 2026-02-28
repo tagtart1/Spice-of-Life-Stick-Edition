@@ -2,7 +2,9 @@
   "required": true,
   "package": "com.tagtart.solstick.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "PlayerFoodMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

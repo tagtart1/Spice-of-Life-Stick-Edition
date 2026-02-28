@@ -17,6 +17,7 @@ import io.netty.buffer.ByteBuf;
 public class PlayerStomach {
     private final Map<ResourceLocation, Integer> foodMap = new HashMap<>();
     private final ArrayDeque<ResourceLocation> foodQueue = new ArrayDeque<>();
+    private final int MAX_FOOD_COUNT = 3;
 
     public PlayerStomach() {
     }
@@ -32,6 +33,25 @@ public class PlayerStomach {
 
     public List<ResourceLocation> getFoodQueueAsList() {
         return new ArrayList<>(foodQueue);
+    }
+
+    public void addFood(ResourceLocation food) {
+        foodQueue.addLast(food);
+        foodMap.put(food, foodMap.getOrDefault(food, 0) + 1);
+
+        // Remove oldest food if the stomach is full
+        while (foodQueue.size() > MAX_FOOD_COUNT) {
+            removeOldestFood();
+        }
+    }
+
+    private void removeOldestFood() {
+        ResourceLocation removedFood = foodQueue.removeFirst();
+        foodMap.put(removedFood, foodMap.getOrDefault(removedFood, 0) - 1);
+        if (foodMap.get(removedFood) == 0) {
+            foodMap.remove(removedFood);
+        }
+
     }
 
     public static final Codec<PlayerStomach> CODEC = RecordCodecBuilder.create(instance -> instance.group(

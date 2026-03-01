@@ -16,11 +16,15 @@ public class AppleSkinEventHandler {
         float foodEffectiveness = playerStomach.getFoodEffectiveness(foodId);
         FoodProperties baseProperties = event.modifiedFoodProperties;
         int newNutrition = Math.round(baseProperties.nutrition() * foodEffectiveness);
+        float newSaturation = 0.0F;
+        if (baseProperties.nutrition() > 0) {
+            float saturationModifier = baseProperties.saturation() / (baseProperties.nutrition() * 2.0F);
+            newSaturation = newNutrition * saturationModifier * 2.0F;
+        }
 
-        // Match the mixin behavior: scale nutrition and keep saturation value unchanged.
         event.modifiedFoodProperties = new FoodProperties(
                 newNutrition,
-                baseProperties.saturation(),
+                newSaturation,
                 baseProperties.canAlwaysEat(),
                 baseProperties.eatSeconds(),
                 baseProperties.usingConvertsTo(),

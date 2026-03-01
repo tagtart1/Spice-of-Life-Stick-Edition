@@ -29,10 +29,24 @@ public abstract class PlayerFoodMixin {
 
                 ResourceLocation foodId = BuiltInRegistries.ITEM.getKey(food.getItem());
                 int nutrition = invokedFoodProperties.nutrition();
-                float saturationModifier = invokedFoodProperties.saturation();
 
                 PlayerStomach playerStomach = player.getData(ModAttachments.PLAYER_STOMACH.get());
-                int newNutrition = Math.round(nutrition * playerStomach.getFoodEffectiveness(foodId));
+                float foodEffectiveness = playerStomach.getFoodEffectiveness(foodId);
+                int newNutrition = Math.round(nutrition * foodEffectiveness);
+                float newSaturation = 0.0F;
+                if (nutrition > 0) {
+                        // FoodProperties stores absolute saturation points; keep the original modifier ratio.
+                        float saturationModifier = invokedFoodProperties.saturation() / (nutrition * 2.0F);
+                        newSaturation = newNutrition * saturationModifier * 2.0F;
+                }
+
+                FoodProperties adjustedFoodProperties = new FoodProperties(
+                                newNutrition,
+                                newSaturation,
+                                invokedFoodProperties.canAlwaysEat(),
+                                invokedFoodProperties.eatSeconds(),
+                                invokedFoodProperties.usingConvertsTo(),
+                                invokedFoodProperties.effects());
 
                 // Write the food to the stomach, server only
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -41,13 +55,13 @@ public abstract class PlayerFoodMixin {
                 }
 
                 SOLStick.LOGGER.info(
-                                "Player {} ate {}: nutrition={}, saturationModifier={}",
+                                "Player {} ate {}: nutrition={}, saturation={}",
                                 player.getGameProfile().getName(),
                                 foodId,
                                 newNutrition,
-                                saturationModifier);
+                                newSaturation);
 
-                // Replace the FoodProperties overload with explicit values.
-                foodData.eat(newNutrition, saturationModifier);
+                // Use the FoodProperties overload to avoid applying saturation conversion twice.
+                foodData.eat(adjustedFoodProperties);
         }
 }

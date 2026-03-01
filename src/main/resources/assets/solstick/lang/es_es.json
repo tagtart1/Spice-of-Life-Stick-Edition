@@ -1,7 +1,11 @@
 {
+  "itemGroup.solstick": "Spice of Life: Stick Edition",
+  "creative.solstick.title": "Spice of Life: Stick Edition",
   "solstick.configuration.title": "Configuracion de SOLStick",
   "solstick.configuration.section.solstick.common.toml": "Configuracion de SOLStick",
   "solstick.configuration.section.solstick.common.toml.title": "Configuracion de SOLStick",
+  "item.solstick.lunch_bag": "Bolsa de Almuerzo",
+  "tooltip.solstick.lunch_bag": "Un almuerzo empacado para el camino.",
   "solstick.configuration.stomachQueueSize": "Tamano de la Cola del Estomago",
   "solstick.configuration.stomachQueueSize.tooltip": "Cuantos alimentos recientes se guardan. Cuando se llena, se eliminan primero los mas antiguos.",
   "solstick.configuration.foodDecayPercent": "Porcentaje de Decaimiento de Comida",

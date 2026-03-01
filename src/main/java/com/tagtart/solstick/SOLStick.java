@@ -1,5 +1,7 @@
 package com.tagtart.solstick;
 
+import com.tagtart.solstick.item.ModCreativeModeTabs;
+import com.tagtart.solstick.item.ModItems;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.slf4j.Logger;
@@ -25,7 +27,8 @@ public class SOLStick {
         modEventBus.addListener(this::commonSetup);
 
         ModAttachments.register(modEventBus);
-
+        ModItems.register(modEventBus);
+        ModCreativeModeTabs.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }

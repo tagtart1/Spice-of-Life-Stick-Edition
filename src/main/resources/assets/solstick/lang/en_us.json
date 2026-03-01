@@ -6,8 +6,8 @@
   "solstick.configuration.title": "SOLStick Configs",
   "solstick.configuration.section.solstick.common.toml": "SOLStick Configs",
   "solstick.configuration.section.solstick.common.toml.title": "SOLStick Configs",
-  "solstick.configuration.items": "Item List",
-  "solstick.configuration.logDirtBlock": "Log Dirt Block",
-  "solstick.configuration.magicNumberIntroduction": "Magic Number Text",
-  "solstick.configuration.magicNumber": "Magic Number"
+  "solstick.configuration.stomachQueueSize": "Stomach Queue Size",
+  "solstick.configuration.stomachQueueSize.tooltip": "How many recently eaten foods are tracked. Oldest entries are removed first when full.",
+  "solstick.configuration.foodDecayPercent": "Food Decay Percent",
+  "solstick.configuration.foodDecayPercent.tooltip": "Rolling decay per repeat. Each repeat multiplies current effectiveness by (1 - decay%). Example at 6%: 100% -> 94% -> 88.36% -> 83.06%."
 }

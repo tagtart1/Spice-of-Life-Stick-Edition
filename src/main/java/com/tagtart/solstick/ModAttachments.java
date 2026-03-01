@@ -1,6 +1,5 @@
 package com.tagtart.solstick;
 
-import com.mojang.serialization.Codec;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -11,10 +10,6 @@ import java.util.function.Supplier;
 public class ModAttachments {
         private static final DeferredRegister<AttachmentType<?>> MOD_ATTACHMENTS = DeferredRegister
                         .create(NeoForgeRegistries.ATTACHMENT_TYPES, SOLStick.MODID);
-
-        public static final Supplier<AttachmentType<Integer>> TEST_ATTACHMENT = MOD_ATTACHMENTS.register(
-                        "test_attachment",
-                        () -> AttachmentType.builder(() -> 0).serialize(Codec.INT).copyOnDeath().build());
 
         public static final Supplier<AttachmentType<PlayerStomach>> PLAYER_STOMACH = MOD_ATTACHMENTS.register(
                         "player_stomach", () -> AttachmentType.builder(PlayerStomach::new)

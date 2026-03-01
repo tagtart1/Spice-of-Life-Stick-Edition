@@ -1,39 +1,46 @@
 package com.tagtart.solstick;
 
-import java.util.List;
-
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
-
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-// An example config class. This is not required, but it's a good idea to have one to keep your config organized.
-// Demonstrates how to use Neo's config APIs
 public class Config {
-        private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    public static final int STOMACH_QUEUE_SIZE_MIN = 3;
+    public static final int STOMACH_QUEUE_SIZE_MAX = 24;
+    public static final int STOMACH_QUEUE_SIZE_DEFAULT = 12;
 
-        public static final ModConfigSpec.BooleanValue LOG_DIRT_BLOCK = BUILDER
-                        .comment("Whether to log the dirt block on common setup")
-                        .define("logDirtBlock", true);
+    public static final int FOOD_DECAY_PERCENT_MIN = 1;
+    public static final int FOOD_DECAY_PERCENT_MAX = 100;
+    public static final int FOOD_DECAY_PERCENT_DEFAULT = 6;
 
-        public static final ModConfigSpec.IntValue MAGIC_NUMBER = BUILDER
-                        .comment("A magic number")
-                        .defineInRange("magicNumber", 42, 0, Integer.MAX_VALUE);
+    private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 
-        public static final ModConfigSpec.ConfigValue<String> MAGIC_NUMBER_INTRODUCTION = BUILDER
-                        .comment("What you want the introduction message to be for the magic number")
-                        .define("magicNumberIntroduction", "The magic number is... ");
+    public static final ModConfigSpec.IntValue STOMACH_QUEUE_SIZE = BUILDER
+            .comment(
+                    "How many recent foods are kept in stomach history.",
+                    "Range: 3-24.",
+                    "When the queue is full, the oldest food is removed first (FIFO).")
+            .translation("solstick.configuration.stomachQueueSize")
+            .defineInRange(
+                    "stomachQueueSize",
+                    STOMACH_QUEUE_SIZE_DEFAULT,
+                    STOMACH_QUEUE_SIZE_MIN,
+                    STOMACH_QUEUE_SIZE_MAX);
 
-        // a list of strings that are treated as resource locations for items
-        public static final ModConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
-                        .comment("A list of items to log on common setup.")
-                        .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "",
-                                        Config::validateItemName);
+    public static final ModConfigSpec.IntValue FOOD_DECAY_PERCENT = BUILDER
+            .comment(
+                    "How much food effectiveness is reduced each repeated eat of the same food.",
+                    "Range: 1-100 (%).",
+                    "This is rolling/multiplicative decay:",
+                    "new effectiveness = current effectiveness * (1 - decay%).",
+                    "Example with 6%: 100% -> 94% -> 88.36% -> 83.06%.")
+            .translation("solstick.configuration.foodDecayPercent")
+            .defineInRange(
+                    "foodDecayPercent",
+                    FOOD_DECAY_PERCENT_DEFAULT,
+                    FOOD_DECAY_PERCENT_MIN,
+                    FOOD_DECAY_PERCENT_MAX);
 
-        static final ModConfigSpec SPEC = BUILDER.build();
+    static final ModConfigSpec SPEC = BUILDER.build();
 
-        private static boolean validateItemName(final Object obj) {
-                return obj instanceof String itemName
-                                && BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemName));
-        }
+    private Config() {
+    }
 }

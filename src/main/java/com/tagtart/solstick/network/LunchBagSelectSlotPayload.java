@@ -3,8 +3,8 @@ package com.tagtart.solstick.network;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
+import com.tagtart.solstick.item.custom.LunchBagConstants;
 import com.tagtart.solstick.item.custom.LunchBagItem;
-import com.tagtart.solstick.menu.custom.LunchBagMenu;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -43,7 +43,7 @@ public record LunchBagSelectSlotPayload(int selectedSlot, boolean offhand) imple
                 return;
             }
 
-            int normalizedSlot = Math.floorMod(payload.selectedSlot, LunchBagMenu.SLOT_COUNT);
+            int normalizedSlot = Math.floorMod(payload.selectedSlot, LunchBagConstants.SLOT_COUNT);
             if (!LunchBagItem.hasFoodAtSlot(heldStack, normalizedSlot)) {
                 return;
             }

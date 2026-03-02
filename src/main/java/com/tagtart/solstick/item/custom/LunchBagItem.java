@@ -1,7 +1,7 @@
 package com.tagtart.solstick.item.custom;
 
 import com.tagtart.solstick.components.ModDataComponents;
-import com.tagtart.solstick.menu.custom.LunchBagMenu;
+import com.tagtart.solstick.item.tooltip.LunchBagTooltipComponent;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
@@ -16,8 +16,11 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class LunchBagItem extends Item {
     public LunchBagItem(Properties properties) {
@@ -54,6 +57,19 @@ public class LunchBagItem extends Item {
     public UseAnim getUseAnimation(ItemStack stack) {
         ItemStack selectedFood = getSelectedFoodStack(stack);
         return selectedFood.isEmpty() ? super.getUseAnimation(stack) : selectedFood.getUseAnimation();
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        ItemContainerContents contents = stack.getOrDefault(
+                ModDataComponents.LUNCH_BAG_CONTENTS.get(),
+                ItemContainerContents.EMPTY);
+        if (contents.equals(ItemContainerContents.EMPTY)) {
+            return Optional.empty();
+        }
+
+        int selectedSlot = stack.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0);
+        return Optional.of(new LunchBagTooltipComponent(contents, selectedSlot));
     }
 
     @Override
@@ -189,7 +205,7 @@ public class LunchBagItem extends Item {
         }
 
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
-        int normalizedSlot = Math.floorMod(slotIndex, LunchBagMenu.SLOT_COUNT);
+        int normalizedSlot = Math.floorMod(slotIndex, LunchBagConstants.SLOT_COUNT);
         return isFood(storedItems.get(normalizedSlot));
     }
 
@@ -199,9 +215,9 @@ public class LunchBagItem extends Item {
         }
 
         int step = direction >= 0 ? 1 : -1;
-        int nextSlot = Math.floorMod(currentSlotIndex, LunchBagMenu.SLOT_COUNT);
-        for (int i = 0; i < LunchBagMenu.SLOT_COUNT; i++) {
-            nextSlot = Math.floorMod(nextSlot + step, LunchBagMenu.SLOT_COUNT);
+        int nextSlot = Math.floorMod(currentSlotIndex, LunchBagConstants.SLOT_COUNT);
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
+            nextSlot = Math.floorMod(nextSlot + step, LunchBagConstants.SLOT_COUNT);
             if (hasFoodAtSlot(lunchBag, nextSlot)) {
                 return nextSlot;
             }
@@ -218,7 +234,7 @@ public class LunchBagItem extends Item {
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
         int remaining = source.getCount();
 
-        for (int i = 0; i < LunchBagMenu.SLOT_COUNT && remaining > 0; i++) {
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT && remaining > 0; i++) {
             ItemStack existing = storedItems.get(i);
             if (existing.isEmpty() || !ItemStack.isSameItemSameComponents(existing, source)) {
                 continue;
@@ -235,7 +251,7 @@ public class LunchBagItem extends Item {
             remaining -= amountToMove;
         }
 
-        for (int i = 0; i < LunchBagMenu.SLOT_COUNT && remaining > 0; i++) {
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT && remaining > 0; i++) {
             if (!storedItems.get(i).isEmpty()) {
                 continue;
             }
@@ -254,7 +270,7 @@ public class LunchBagItem extends Item {
 
     private static ItemStack removeFirstStoredStack(ItemStack lunchBag) {
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
-        for (int i = 0; i < LunchBagMenu.SLOT_COUNT; i++) {
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
             ItemStack stack = storedItems.get(i);
             if (stack.isEmpty()) {
                 continue;
@@ -272,7 +288,7 @@ public class LunchBagItem extends Item {
         ItemContainerContents contents = lunchBag.getOrDefault(
                 ModDataComponents.LUNCH_BAG_CONTENTS.get(),
                 ItemContainerContents.EMPTY);
-        NonNullList<ItemStack> storedItems = NonNullList.withSize(LunchBagMenu.SLOT_COUNT, ItemStack.EMPTY);
+        NonNullList<ItemStack> storedItems = NonNullList.withSize(LunchBagConstants.SLOT_COUNT, ItemStack.EMPTY);
         contents.copyInto(storedItems);
         return storedItems;
     }
@@ -284,6 +300,6 @@ public class LunchBagItem extends Item {
     private static int getSelectedSlotIndex(ItemStack lunchBag) {
         return Math.floorMod(
                 lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0),
-                LunchBagMenu.SLOT_COUNT);
+                LunchBagConstants.SLOT_COUNT);
     }
 }

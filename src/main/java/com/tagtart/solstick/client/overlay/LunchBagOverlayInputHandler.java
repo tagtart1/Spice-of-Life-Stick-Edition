@@ -5,8 +5,8 @@ import com.tagtart.solstick.LunchBagOverlayState;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
+import com.tagtart.solstick.item.custom.LunchBagConstants;
 import com.tagtart.solstick.item.custom.LunchBagItem;
-import com.tagtart.solstick.menu.custom.LunchBagMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -115,7 +115,7 @@ public final class LunchBagOverlayInputHandler {
             return false;
         }
 
-        if (hotbarIndex >= 0 && hotbarIndex < LunchBagMenu.SLOT_COUNT
+        if (hotbarIndex >= 0 && hotbarIndex < LunchBagConstants.SLOT_COUNT
                 && LunchBagItem.hasFoodAtSlot(lunchBag, hotbarIndex)) {
             updateSelectedSlot(lunchBag, hand, hotbarIndex);
         }
@@ -178,7 +178,7 @@ public final class LunchBagOverlayInputHandler {
     }
 
     private static void updateSelectedSlot(ItemStack lunchBag, InteractionHand hand, int selectedSlot) {
-        int normalizedSlot = Math.floorMod(selectedSlot, LunchBagMenu.SLOT_COUNT);
+        int normalizedSlot = Math.floorMod(selectedSlot, LunchBagConstants.SLOT_COUNT);
         lunchBag.set(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), normalizedSlot);
         PacketDistributor.sendToServer(new LunchBagSelectSlotPayload(normalizedSlot, hand == InteractionHand.OFF_HAND));
     }

@@ -4,7 +4,7 @@ import com.tagtart.solstick.LunchBagOverlayState;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
-import com.tagtart.solstick.menu.custom.LunchBagMenu;
+import com.tagtart.solstick.item.custom.LunchBagConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
@@ -93,17 +93,17 @@ public final class LunchBagOverlayRenderer {
         ItemContainerContents contents = lunchBag.getOrDefault(
                 ModDataComponents.LUNCH_BAG_CONTENTS.get(),
                 ItemContainerContents.EMPTY);
-        NonNullList<ItemStack> storedItems = NonNullList.withSize(LunchBagMenu.SLOT_COUNT, ItemStack.EMPTY);
+        NonNullList<ItemStack> storedItems = NonNullList.withSize(LunchBagConstants.SLOT_COUNT, ItemStack.EMPTY);
         contents.copyInto(storedItems);
 
-        for (int i = 0; i < LunchBagMenu.SLOT_COUNT; i++) {
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
             ItemStack stack = storedItems.get(i);
             if (stack.isEmpty()) {
                 continue;
             }
 
-            int slotX = left + LunchBagMenu.SLOT_X_OFFSET + i * LunchBagMenu.SLOT_STRIDE;
-            int slotY = top + LunchBagMenu.SLOT_Y_OFFSET;
+            int slotX = left + LunchBagConstants.SLOT_X_OFFSET + i * LunchBagConstants.SLOT_STRIDE;
+            int slotY = top + LunchBagConstants.SLOT_Y_OFFSET;
             event.getGuiGraphics().renderItem(stack, slotX, slotY);
             event.getGuiGraphics().renderItemDecorations(minecraft.font, stack, slotX, slotY);
         }
@@ -111,8 +111,8 @@ public final class LunchBagOverlayRenderer {
 
     private static void renderSelectionFrame(RenderGuiEvent.Post event, ItemStack lunchBag, int left, int top) {
         int selected = normalizeSelectedIndex(lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0));
-        int slotX = left + LunchBagMenu.SLOT_X_OFFSET + selected * LunchBagMenu.SLOT_STRIDE;
-        int slotY = top + LunchBagMenu.SLOT_Y_OFFSET;
+        int slotX = left + LunchBagConstants.SLOT_X_OFFSET + selected * LunchBagConstants.SLOT_STRIDE;
+        int slotY = top + LunchBagConstants.SLOT_Y_OFFSET;
         int frameX = slotX - (SELECTION_FRAME_WIDTH - 16) / 2;
         int frameY = slotY - (SELECTION_FRAME_HEIGHT - 16) / 2;
 
@@ -130,6 +130,6 @@ public final class LunchBagOverlayRenderer {
     }
 
     private static int normalizeSelectedIndex(int index) {
-        return Math.floorMod(index, LunchBagMenu.SLOT_COUNT);
+        return Math.floorMod(index, LunchBagConstants.SLOT_COUNT);
     }
 }

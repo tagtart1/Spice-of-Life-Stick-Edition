@@ -3,7 +3,6 @@ package com.tagtart.solstick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModCreativeModeTabs;
 import com.tagtart.solstick.item.ModItems;
-import com.tagtart.solstick.menu.ModMenuTypes;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -29,7 +28,6 @@ public class SOLStick {
         ModAttachments.register(modEventBus);
         ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
-        ModMenuTypes.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

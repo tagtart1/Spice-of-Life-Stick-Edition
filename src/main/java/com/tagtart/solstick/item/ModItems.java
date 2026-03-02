@@ -12,7 +12,7 @@ public final class ModItems {
 
     public static final DeferredItem<Item> LUNCH_BAG = ITEMS.register(
             "lunch_bag",
-            () -> new LunchBagItem(new Item.Properties()));
+            () -> new LunchBagItem(new Item.Properties().stacksTo(1)));
 
     private ModItems() {
     }

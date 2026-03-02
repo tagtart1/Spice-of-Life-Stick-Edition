@@ -1,5 +1,6 @@
 package com.tagtart.solstick;
 
+import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModCreativeModeTabs;
 import com.tagtart.solstick.item.ModItems;
 import com.tagtart.solstick.menu.ModMenuTypes;
@@ -26,6 +27,7 @@ public class SOLStick {
         modEventBus.addListener(this::commonSetup);
 
         ModAttachments.register(modEventBus);
+        ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
         ModMenuTypes.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);

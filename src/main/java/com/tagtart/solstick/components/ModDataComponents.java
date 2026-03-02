@@ -1,8 +1,10 @@
 package com.tagtart.solstick.components;
 
 import com.tagtart.solstick.SOLStick;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -18,6 +20,13 @@ public final class ModDataComponents {
                     builder -> builder
                             .persistent(ItemContainerContents.CODEC)
                             .networkSynchronized(ItemContainerContents.STREAM_CODEC)
+                            .cacheEncoding());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> LUNCH_BAG_SELECTED_SLOT = DATA_COMPONENTS
+            .registerComponentType(
+                    "lunch_bag_selected_slot",
+                    builder -> builder
+                            .persistent(Codec.INT)
+                            .networkSynchronized(ByteBufCodecs.VAR_INT)
                             .cacheEncoding());
 
     private ModDataComponents() {

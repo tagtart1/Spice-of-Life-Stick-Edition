@@ -4,23 +4,22 @@ import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.menu.custom.LunchBagMenu;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class LunchBagItem extends Item {
-    private static final Component TITLE = Component.translatable("container.solstick.lunch_bag");
-
     public LunchBagItem(Properties properties) {
         super(properties);
     }
@@ -28,13 +27,48 @@ public class LunchBagItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack heldItem = player.getItemInHand(usedHand);
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(new SimpleMenuProvider(
-                    (containerId, playerInventory, ignoredPlayer) -> new LunchBagMenu(containerId, playerInventory, heldItem),
-                    TITLE));
+        ItemStack selectedFood = getSelectedFoodStack(heldItem);
+        FoodProperties selectedFoodProperties = selectedFood.getFoodProperties(player);
+        if (!selectedFood.isEmpty() && selectedFoodProperties != null && player.canEat(selectedFoodProperties.canAlwaysEat())) {
+            player.startUsingItem(usedHand);
+            return InteractionResultHolder.consume(heldItem);
         }
 
-        return InteractionResultHolder.sidedSuccess(heldItem, level.isClientSide());
+        return InteractionResultHolder.pass(heldItem);
+    }
+
+    @Override
+    @Nullable
+    public FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
+        ItemStack selectedFood = getSelectedFoodStack(stack);
+        return selectedFood.isEmpty() ? null : selectedFood.getFoodProperties(entity);
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        ItemStack selectedFood = getSelectedFoodStack(stack);
+        return selectedFood.isEmpty() ? super.getUseDuration(stack, entity) : selectedFood.getUseDuration(entity);
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        ItemStack selectedFood = getSelectedFoodStack(stack);
+        return selectedFood.isEmpty() ? super.getUseAnimation(stack) : selectedFood.getUseAnimation();
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        int selectedSlot = getSelectedSlotIndex(stack);
+        NonNullList<ItemStack> storedItems = getStoredItems(stack);
+        ItemStack selectedFood = storedItems.get(selectedSlot);
+        if (selectedFood.isEmpty() || selectedFood.getFoodProperties(livingEntity) == null) {
+            return stack;
+        }
+
+        ItemStack postEatStack = selectedFood.finishUsingItem(level, livingEntity);
+        storedItems.set(selectedSlot, postEatStack);
+        setStoredItems(stack, storedItems);
+        return stack;
     }
 
     @Override
@@ -139,6 +173,43 @@ public class LunchBagItem extends Item {
         return !stack.isEmpty() && stack.has(DataComponents.FOOD);
     }
 
+    public static ItemStack getSelectedFoodStack(ItemStack lunchBag) {
+        if (!(lunchBag.getItem() instanceof LunchBagItem)) {
+            return ItemStack.EMPTY;
+        }
+
+        NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
+        ItemStack selectedFood = storedItems.get(getSelectedSlotIndex(lunchBag));
+        return isFood(selectedFood) ? selectedFood : ItemStack.EMPTY;
+    }
+
+    public static boolean hasFoodAtSlot(ItemStack lunchBag, int slotIndex) {
+        if (!(lunchBag.getItem() instanceof LunchBagItem)) {
+            return false;
+        }
+
+        NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
+        int normalizedSlot = Math.floorMod(slotIndex, LunchBagMenu.SLOT_COUNT);
+        return isFood(storedItems.get(normalizedSlot));
+    }
+
+    public static int getNextFilledFoodSlot(ItemStack lunchBag, int currentSlotIndex, int direction) {
+        if (!(lunchBag.getItem() instanceof LunchBagItem)) {
+            return -1;
+        }
+
+        int step = direction >= 0 ? 1 : -1;
+        int nextSlot = Math.floorMod(currentSlotIndex, LunchBagMenu.SLOT_COUNT);
+        for (int i = 0; i < LunchBagMenu.SLOT_COUNT; i++) {
+            nextSlot = Math.floorMod(nextSlot + step, LunchBagMenu.SLOT_COUNT);
+            if (hasFoodAtSlot(lunchBag, nextSlot)) {
+                return nextSlot;
+            }
+        }
+
+        return -1;
+    }
+
     private static int insertFoodIntoBag(ItemStack lunchBag, ItemStack source) {
         if (!isFood(source)) {
             return 0;
@@ -208,5 +279,11 @@ public class LunchBagItem extends Item {
 
     private static void setStoredItems(ItemStack lunchBag, NonNullList<ItemStack> storedItems) {
         lunchBag.set(ModDataComponents.LUNCH_BAG_CONTENTS.get(), ItemContainerContents.fromItems(storedItems));
+    }
+
+    private static int getSelectedSlotIndex(ItemStack lunchBag) {
+        return Math.floorMod(
+                lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0),
+                LunchBagMenu.SLOT_COUNT);
     }
 }

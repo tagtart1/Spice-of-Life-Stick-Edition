@@ -20,6 +20,13 @@ group = mod_group_id
 repositories {
     // Add here additional repositories if required by some of the dependencies below.
     maven { url = "https://maven.ryanliptak.com/" }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+        content {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
@@ -122,6 +129,10 @@ dependencies {
     // AppleSkin integration:
     compileOnly "squeek.appleskin:appleskin-neoforge:mc1.21-3.0.8:api"
     runtimeOnly "squeek.appleskin:appleskin-neoforge:mc1.21-3.0.8"
+
+    // Dev-only runtime mods for local testing.
+    localRuntime "maven.modrinth:moonlight:${moonlight_version}"
+    localRuntime "maven.modrinth:supplementaries:${supplementaries_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

@@ -3,6 +3,8 @@ package com.tagtart.solstick.mixin;
 import com.tagtart.solstick.ModAttachments;
 import com.tagtart.solstick.PlayerStomach;
 import com.tagtart.solstick.SOLStick;
+import com.tagtart.solstick.item.ModItems;
+import com.tagtart.solstick.item.custom.LunchBagItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -23,11 +25,11 @@ public abstract class PlayerFoodMixin {
                         FoodProperties invokedFoodProperties,
                         Level level,
                         ItemStack food,
-                        FoodProperties methodFoodProperties) {
+                FoodProperties methodFoodProperties) {
 
                 Player player = (Player) (Object) this;
 
-                ResourceLocation foodId = BuiltInRegistries.ITEM.getKey(food.getItem());
+                ResourceLocation foodId = solstick$resolveTrackedFoodId(food);
                 int nutrition = invokedFoodProperties.nutrition();
 
                 PlayerStomach playerStomach = player.getData(ModAttachments.PLAYER_STOMACH.get());
@@ -63,5 +65,16 @@ public abstract class PlayerFoodMixin {
 
                 // Use the FoodProperties overload to avoid applying saturation conversion twice.
                 foodData.eat(adjustedFoodProperties);
+        }
+
+        private static ResourceLocation solstick$resolveTrackedFoodId(ItemStack consumedStack) {
+                if (consumedStack.is(ModItems.LUNCH_BAG.get())) {
+                        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(consumedStack);
+                        if (!selectedFood.isEmpty()) {
+                                return BuiltInRegistries.ITEM.getKey(selectedFood.getItem());
+                        }
+                }
+
+                return BuiltInRegistries.ITEM.getKey(consumedStack.getItem());
         }
 }

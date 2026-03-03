@@ -1,9 +1,13 @@
 package com.tagtart.solstick.item.custom;
 
+import com.tagtart.solstick.ModAttachments;
+import com.tagtart.solstick.PlayerStomach;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.tooltip.LunchBagTooltipComponent;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,7 +34,7 @@ public class LunchBagItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack heldItem = player.getItemInHand(usedHand);
-        ItemStack selectedFood = getSelectedFoodStack(heldItem);
+        ItemStack selectedFood = getSelectedFoodStack(heldItem, player);
         FoodProperties selectedFoodProperties = selectedFood.getFoodProperties(player);
         if (!selectedFood.isEmpty() && selectedFoodProperties != null && player.canEat(selectedFoodProperties.canAlwaysEat())) {
             player.startUsingItem(usedHand);
@@ -43,19 +47,19 @@ public class LunchBagItem extends Item {
     @Override
     @Nullable
     public FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
-        ItemStack selectedFood = getSelectedFoodStack(stack);
+        ItemStack selectedFood = getSelectedFoodStack(stack, entity);
         return selectedFood.isEmpty() ? null : selectedFood.getFoodProperties(entity);
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        ItemStack selectedFood = getSelectedFoodStack(stack);
+        ItemStack selectedFood = getSelectedFoodStack(stack, entity);
         return selectedFood.isEmpty() ? super.getUseDuration(stack, entity) : selectedFood.getUseDuration(entity);
     }
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        ItemStack selectedFood = getSelectedFoodStack(stack);
+        ItemStack selectedFood = getSelectedFoodStack(stack, null);
         return selectedFood.isEmpty() ? super.getUseAnimation(stack) : selectedFood.getUseAnimation();
     }
 
@@ -74,7 +78,10 @@ public class LunchBagItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-        int selectedSlot = getSelectedSlotIndex(stack);
+        int selectedSlot = resolveActiveFoodSlotIndex(stack, livingEntity);
+        if (selectedSlot < 0) {
+            return stack;
+        }
         NonNullList<ItemStack> storedItems = getStoredItems(stack);
         ItemStack selectedFood = storedItems.get(selectedSlot);
         if (selectedFood.isEmpty() || selectedFood.getFoodProperties(livingEntity) == null) {
@@ -190,12 +197,21 @@ public class LunchBagItem extends Item {
     }
 
     public static ItemStack getSelectedFoodStack(ItemStack lunchBag) {
+        return getSelectedFoodStack(lunchBag, null);
+    }
+
+    public static ItemStack getSelectedFoodStack(ItemStack lunchBag, @Nullable LivingEntity entity) {
         if (!(lunchBag.getItem() instanceof LunchBagItem)) {
             return ItemStack.EMPTY;
         }
 
+        int activeSlot = resolveActiveFoodSlotIndex(lunchBag, entity);
+        if (activeSlot < 0) {
+            return ItemStack.EMPTY;
+        }
+
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
-        ItemStack selectedFood = storedItems.get(getSelectedSlotIndex(lunchBag));
+        ItemStack selectedFood = storedItems.get(activeSlot);
         return isFood(selectedFood) ? selectedFood : ItemStack.EMPTY;
     }
 
@@ -203,27 +219,139 @@ public class LunchBagItem extends Item {
         if (!(lunchBag.getItem() instanceof LunchBagItem)) {
             return false;
         }
+        if (slotIndex < 0 || slotIndex >= LunchBagConstants.SLOT_COUNT) {
+            return false;
+        }
 
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
-        int normalizedSlot = Math.floorMod(slotIndex, LunchBagConstants.SLOT_COUNT);
-        return isFood(storedItems.get(normalizedSlot));
+        return isFood(storedItems.get(slotIndex));
     }
 
     public static int getNextFilledFoodSlot(ItemStack lunchBag, int currentSlotIndex, int direction) {
+        return getNextSelectableSlot(lunchBag, currentSlotIndex, direction);
+    }
+
+    public static int getNextSelectableSlot(ItemStack lunchBag, int currentSlotIndex, int direction) {
         if (!(lunchBag.getItem() instanceof LunchBagItem)) {
             return -1;
         }
 
         int step = direction >= 0 ? 1 : -1;
-        int nextSlot = Math.floorMod(currentSlotIndex, LunchBagConstants.SLOT_COUNT);
-        for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
-            nextSlot = Math.floorMod(nextSlot + step, LunchBagConstants.SLOT_COUNT);
+        int nextSlot = normalizeSelectableSlot(currentSlotIndex);
+        boolean hiddenBestAvailable = hasAnyFood(lunchBag);
+        for (int i = 0; i < LunchBagConstants.TOTAL_SELECTABLE_SLOTS; i++) {
+            nextSlot = normalizeSelectableSlot(nextSlot + step);
+            if (isHiddenBestSlot(nextSlot)) {
+                if (hiddenBestAvailable) {
+                    return nextSlot;
+                }
+                continue;
+            }
             if (hasFoodAtSlot(lunchBag, nextSlot)) {
                 return nextSlot;
             }
         }
 
         return -1;
+    }
+
+    public static boolean isHiddenBestSlot(int slotIndex) {
+        return normalizeSelectableSlot(slotIndex) == LunchBagConstants.HIDDEN_BEST_SLOT_INDEX;
+    }
+
+    public static int normalizeSelectableSlot(int slotIndex) {
+        return Math.floorMod(slotIndex, LunchBagConstants.TOTAL_SELECTABLE_SLOTS);
+    }
+
+    public static int getSelectedSlotIndex(ItemStack lunchBag) {
+        int selected = normalizeSelectableSlot(
+                lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0));
+        if (isHiddenBestSlot(selected) && !hasAnyFood(lunchBag)) {
+            return 0;
+        }
+        return selected;
+    }
+
+    public static boolean hasAnyFood(ItemStack lunchBag) {
+        if (!(lunchBag.getItem() instanceof LunchBagItem)) {
+            return false;
+        }
+        ItemContainerContents contents = lunchBag.getOrDefault(
+                ModDataComponents.LUNCH_BAG_CONTENTS.get(),
+                ItemContainerContents.EMPTY);
+        return !contents.equals(ItemContainerContents.EMPTY);
+    }
+
+    private static int resolveActiveFoodSlotIndex(ItemStack lunchBag, @Nullable LivingEntity entity) {
+        int selectedSlot = getSelectedSlotIndex(lunchBag);
+        if (isHiddenBestSlot(selectedSlot)) {
+            return getBestFoodSlotIndex(lunchBag, entity);
+        }
+        return hasFoodAtSlot(lunchBag, selectedSlot) ? selectedSlot : -1;
+    }
+
+    public static int getBestFoodSlotIndex(ItemStack lunchBag, @Nullable LivingEntity entity) {
+        if (!(lunchBag.getItem() instanceof LunchBagItem)) {
+            return -1;
+        }
+
+        NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
+        int bestSlot = -1;
+        int bestNutrition = Integer.MIN_VALUE;
+        float bestSaturation = Float.NEGATIVE_INFINITY;
+        int bestCount = Integer.MIN_VALUE;
+
+        for (int slot = 0; slot < LunchBagConstants.SLOT_COUNT; slot++) {
+            ItemStack stack = storedItems.get(slot);
+            if (!isFood(stack)) {
+                continue;
+            }
+
+            FoodProperties foodProperties = stack.getFoodProperties(entity);
+            if (foodProperties == null) {
+                continue;
+            }
+
+            float effectiveness = getFoodEffectiveness(stack, entity);
+            int modifiedNutrition = computeModifiedNutrition(foodProperties, effectiveness);
+            float modifiedSaturation = computeModifiedSaturation(foodProperties, modifiedNutrition);
+            int stackCount = stack.getCount();
+            if (modifiedNutrition > bestNutrition
+                    || (modifiedNutrition == bestNutrition && Float.compare(modifiedSaturation, bestSaturation) > 0)
+                    || (modifiedNutrition == bestNutrition
+                            && Float.compare(modifiedSaturation, bestSaturation) == 0
+                            && stackCount > bestCount)) {
+                bestNutrition = modifiedNutrition;
+                bestSaturation = modifiedSaturation;
+                bestCount = stackCount;
+                bestSlot = slot;
+            }
+        }
+
+        return bestSlot;
+    }
+
+    private static float getFoodEffectiveness(ItemStack foodStack, @Nullable LivingEntity entity) {
+        float effectiveness = 1.0F;
+        if (entity instanceof Player player) {
+            PlayerStomach stomach = player.getData(ModAttachments.PLAYER_STOMACH.get());
+            ResourceLocation foodId = BuiltInRegistries.ITEM.getKey(foodStack.getItem());
+            effectiveness = stomach.getFoodEffectiveness(foodId);
+        }
+        return effectiveness;
+    }
+
+    private static int computeModifiedNutrition(FoodProperties foodProperties, float effectiveness) {
+        return Math.round(foodProperties.nutrition() * effectiveness);
+    }
+
+    private static float computeModifiedSaturation(FoodProperties foodProperties, int modifiedNutrition) {
+        int baseNutrition = foodProperties.nutrition();
+        if (baseNutrition <= 0) {
+            return 0.0F;
+        }
+        float saturationModifier = foodProperties.saturation() / (baseNutrition * 2.0F);
+        return modifiedNutrition * saturationModifier * 2.0F;
     }
 
     private static int insertFoodIntoBag(ItemStack lunchBag, ItemStack source) {
@@ -295,11 +423,16 @@ public class LunchBagItem extends Item {
 
     private static void setStoredItems(ItemStack lunchBag, NonNullList<ItemStack> storedItems) {
         lunchBag.set(ModDataComponents.LUNCH_BAG_CONTENTS.get(), ItemContainerContents.fromItems(storedItems));
+        boolean hasStoredItems = false;
+        for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
+            if (!storedItems.get(i).isEmpty()) {
+                hasStoredItems = true;
+                break;
+            }
+        }
+        if (!hasStoredItems) {
+            lunchBag.set(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0);
+        }
     }
 
-    private static int getSelectedSlotIndex(ItemStack lunchBag) {
-        return Math.floorMod(
-                lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0),
-                LunchBagConstants.SLOT_COUNT);
-    }
 }

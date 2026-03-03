@@ -29,7 +29,7 @@ public abstract class PlayerFoodMixin {
 
                 Player player = (Player) (Object) this;
 
-                ResourceLocation foodId = solstick$resolveTrackedFoodId(food);
+                ResourceLocation foodId = solstick$resolveTrackedFoodId(food, player);
                 int nutrition = invokedFoodProperties.nutrition();
 
                 PlayerStomach playerStomach = player.getData(ModAttachments.PLAYER_STOMACH.get());
@@ -67,9 +67,9 @@ public abstract class PlayerFoodMixin {
                 foodData.eat(adjustedFoodProperties);
         }
 
-        private static ResourceLocation solstick$resolveTrackedFoodId(ItemStack consumedStack) {
+        private static ResourceLocation solstick$resolveTrackedFoodId(ItemStack consumedStack, Player player) {
                 if (consumedStack.is(ModItems.LUNCH_BAG.get())) {
-                        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(consumedStack);
+                        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(consumedStack, player);
                         if (!selectedFood.isEmpty()) {
                                 return BuiltInRegistries.ITEM.getKey(selectedFood.getItem());
                         }

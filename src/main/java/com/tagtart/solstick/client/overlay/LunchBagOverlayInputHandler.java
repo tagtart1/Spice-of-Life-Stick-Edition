@@ -66,7 +66,7 @@ public final class LunchBagOverlayInputHandler {
         if (event.getScrollDeltaY() != 0.0D) {
             int current = lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0);
             int delta = event.getScrollDeltaY() > 0.0D ? -1 : 1;
-            int nextSlot = LunchBagItem.getNextFilledFoodSlot(lunchBag, current, delta);
+            int nextSlot = LunchBagItem.getNextSelectableSlot(lunchBag, current, delta);
             if (nextSlot >= 0) {
                 updateSelectedSlot(lunchBag, hand, nextSlot);
             }
@@ -115,7 +115,9 @@ public final class LunchBagOverlayInputHandler {
             return false;
         }
 
-        if (hotbarIndex >= 0 && hotbarIndex < LunchBagConstants.SLOT_COUNT
+        if (hotbarIndex == LunchBagConstants.HIDDEN_BEST_SLOT_INDEX && LunchBagItem.hasAnyFood(lunchBag)) {
+            updateSelectedSlot(lunchBag, hand, hotbarIndex);
+        } else if (hotbarIndex >= 0 && hotbarIndex < LunchBagConstants.SLOT_COUNT
                 && LunchBagItem.hasFoodAtSlot(lunchBag, hotbarIndex)) {
             updateSelectedSlot(lunchBag, hand, hotbarIndex);
         }
@@ -178,7 +180,7 @@ public final class LunchBagOverlayInputHandler {
     }
 
     private static void updateSelectedSlot(ItemStack lunchBag, InteractionHand hand, int selectedSlot) {
-        int normalizedSlot = Math.floorMod(selectedSlot, LunchBagConstants.SLOT_COUNT);
+        int normalizedSlot = Math.floorMod(selectedSlot, LunchBagConstants.TOTAL_SELECTABLE_SLOTS);
         lunchBag.set(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), normalizedSlot);
         PacketDistributor.sendToServer(new LunchBagSelectSlotPayload(normalizedSlot, hand == InteractionHand.OFF_HAND));
     }

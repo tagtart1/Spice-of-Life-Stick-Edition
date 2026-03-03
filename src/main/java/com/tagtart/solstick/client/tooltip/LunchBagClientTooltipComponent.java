@@ -26,7 +26,7 @@ public final class LunchBagClientTooltipComponent implements ClientTooltipCompon
     public LunchBagClientTooltipComponent(LunchBagTooltipComponent tooltip) {
         this.items = NonNullList.withSize(LunchBagConstants.SLOT_COUNT, ItemStack.EMPTY);
         tooltip.contents().copyInto(this.items);
-        this.selectedSlot = Math.floorMod(tooltip.selectedSlot(), LunchBagConstants.SLOT_COUNT);
+        this.selectedSlot = Math.floorMod(tooltip.selectedSlot(), LunchBagConstants.TOTAL_SELECTABLE_SLOTS);
     }
 
     @Override
@@ -48,7 +48,8 @@ public final class LunchBagClientTooltipComponent implements ClientTooltipCompon
         for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
             int slotX = x + BORDER + i * SLOT_WIDTH;
             int slotY = y + BORDER;
-            renderSlot(guiGraphics, slotX, slotY, items.get(i), i == selectedSlot, font);
+            renderSlot(guiGraphics, slotX, slotY, items.get(i),
+                    selectedSlot < LunchBagConstants.SLOT_COUNT && i == selectedSlot, font);
         }
     }
 

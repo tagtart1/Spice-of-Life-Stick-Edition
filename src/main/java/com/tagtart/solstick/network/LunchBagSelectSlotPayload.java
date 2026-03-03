@@ -43,8 +43,13 @@ public record LunchBagSelectSlotPayload(int selectedSlot, boolean offhand) imple
                 return;
             }
 
-            int normalizedSlot = Math.floorMod(payload.selectedSlot, LunchBagConstants.SLOT_COUNT);
-            if (!LunchBagItem.hasFoodAtSlot(heldStack, normalizedSlot)) {
+            int normalizedSlot = Math.floorMod(payload.selectedSlot, LunchBagConstants.TOTAL_SELECTABLE_SLOTS);
+            if (LunchBagItem.isHiddenBestSlot(normalizedSlot) && !LunchBagItem.hasAnyFood(heldStack)) {
+                return;
+            }
+
+            if (!LunchBagItem.isHiddenBestSlot(normalizedSlot)
+                    && !LunchBagItem.hasFoodAtSlot(heldStack, normalizedSlot)) {
                 return;
             }
 

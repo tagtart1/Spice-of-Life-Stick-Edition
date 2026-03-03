@@ -27,13 +27,20 @@ public final class LunchBagOverlayRenderer {
     private static final ResourceLocation SELECTION_FRAME_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             SOLStick.MODID,
             "textures/gui/selectable_item_overlay.png");
+    private static final ResourceLocation BEST_SELECTION_FRAME_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            SOLStick.MODID,
+            "textures/gui/best_selectable_item_overlay.png");
     private static final int TEXTURE_WIDTH = 142;
     private static final int TEXTURE_HEIGHT = 22;
     private static final int VERTICAL_CENTER_OFFSET = -28;
     private static final int SELECTION_FRAME_WIDTH = 24;
     private static final int SELECTION_FRAME_HEIGHT = 24;
+    private static final int BEST_SELECTION_FRAME_WIDTH = 24;
+    private static final int BEST_SELECTION_FRAME_HEIGHT = 24;
     private static final int ITEM_NAME_VERTICAL_GAP = 6;
     private static final int TEXT_SCREEN_PADDING = 2;
+    private static final int BEST_FOOD_FIRST_TEXT_COLOR = 0x55FF55;
+    private static final String BEST_FOOD_FIRST_LABEL = "Best Food First";
 
     private LunchBagOverlayRenderer() {
     }
@@ -74,7 +81,7 @@ public final class LunchBagOverlayRenderer {
                 TEXTURE_WIDTH,
                 TEXTURE_HEIGHT);
         renderStoredItems(event, lunchBag, x, y, minecraft);
-        renderSelectionFrame(event, lunchBag, x, y);
+        renderSelectionFrame(event, lunchBag, x, y, minecraft);
         renderSelectedItemName(event, lunchBag, x, y, minecraft);
         event.getGuiGraphics().setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
@@ -115,8 +122,33 @@ public final class LunchBagOverlayRenderer {
         }
     }
 
-    private static void renderSelectionFrame(RenderGuiEvent.Post event, ItemStack lunchBag, int left, int top) {
-        int selected = normalizeSelectedIndex(lunchBag.getOrDefault(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), 0));
+    private static void renderSelectionFrame(RenderGuiEvent.Post event, ItemStack lunchBag, int left, int top,
+            Minecraft minecraft) {
+        int selected = LunchBagItem.getSelectedSlotIndex(lunchBag);
+        if (LunchBagItem.isHiddenBestSlot(selected)) {
+            int bestSlot = LunchBagItem.getBestFoodSlotIndex(lunchBag, minecraft.player);
+            if (bestSlot < 0) {
+                return;
+            }
+
+            int slotX = left + LunchBagConstants.SLOT_X_OFFSET + bestSlot * LunchBagConstants.SLOT_STRIDE;
+            int slotY = top + LunchBagConstants.SLOT_Y_OFFSET;
+            int frameX = slotX - (BEST_SELECTION_FRAME_WIDTH - 16) / 2;
+            int frameY = slotY - (BEST_SELECTION_FRAME_HEIGHT - 16) / 2;
+            event.getGuiGraphics().blit(
+                    BEST_SELECTION_FRAME_TEXTURE,
+                    frameX,
+                    frameY,
+                    0,
+                    0.0F,
+                    0.0F,
+                    BEST_SELECTION_FRAME_WIDTH,
+                    BEST_SELECTION_FRAME_HEIGHT,
+                    BEST_SELECTION_FRAME_WIDTH,
+                    BEST_SELECTION_FRAME_HEIGHT);
+            return;
+        }
+
         int slotX = left + LunchBagConstants.SLOT_X_OFFSET + selected * LunchBagConstants.SLOT_STRIDE;
         int slotY = top + LunchBagConstants.SLOT_Y_OFFSET;
         int frameX = slotX - (SELECTION_FRAME_WIDTH - 16) / 2;
@@ -137,23 +169,20 @@ public final class LunchBagOverlayRenderer {
 
     private static void renderSelectedItemName(RenderGuiEvent.Post event, ItemStack lunchBag, int left, int top,
             Minecraft minecraft) {
-        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(lunchBag);
+        int selectedSlot = LunchBagItem.getSelectedSlotIndex(lunchBag);
+        if (LunchBagItem.isHiddenBestSlot(selectedSlot)) {
+            drawCenteredText(event, minecraft, left, top, BEST_FOOD_FIRST_LABEL, BEST_FOOD_FIRST_TEXT_COLOR);
+            return;
+        }
+
+        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(lunchBag, minecraft.player);
         if (selectedFood.isEmpty()) {
             return;
         }
 
         Component name = selectedFood.getHoverName();
         int textColor = resolveItemNameColor(selectedFood, name);
-        int textWidth = minecraft.font.width(name);
-        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
-        int centeredX = left + (TEXTURE_WIDTH - textWidth) / 2;
-        int maxX = Math.max(TEXT_SCREEN_PADDING, screenWidth - textWidth - TEXT_SCREEN_PADDING);
-        int x = Mth.clamp(centeredX, TEXT_SCREEN_PADDING, maxX);
-
-        int y = top - ITEM_NAME_VERTICAL_GAP - minecraft.font.lineHeight;
-        y = Math.max(TEXT_SCREEN_PADDING, y);
-
-        event.getGuiGraphics().drawString(minecraft.font, name.getString(), x, y, textColor, false);
+        drawCenteredText(event, minecraft, left, top, name.getString(), textColor);
     }
 
     private static int resolveItemNameColor(ItemStack stack, Component name) {
@@ -169,7 +198,15 @@ public final class LunchBagOverlayRenderer {
         return 0xFFFFFF;
     }
 
-    private static int normalizeSelectedIndex(int index) {
-        return Math.floorMod(index, LunchBagConstants.SLOT_COUNT);
+    private static void drawCenteredText(RenderGuiEvent.Post event, Minecraft minecraft, int left, int top, String text,
+            int color) {
+        int textWidth = minecraft.font.width(text);
+        int screenWidth = minecraft.getWindow().getGuiScaledWidth();
+        int centeredX = left + (TEXTURE_WIDTH - textWidth) / 2;
+        int maxX = Math.max(TEXT_SCREEN_PADDING, screenWidth - textWidth - TEXT_SCREEN_PADDING);
+        int x = Mth.clamp(centeredX, TEXT_SCREEN_PADDING, maxX);
+        int y = top - ITEM_NAME_VERTICAL_GAP - minecraft.font.lineHeight;
+        y = Math.max(TEXT_SCREEN_PADDING, y);
+        event.getGuiGraphics().drawString(minecraft.font, text, x, y, color, false);
     }
 }

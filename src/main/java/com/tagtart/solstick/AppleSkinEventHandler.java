@@ -5,6 +5,7 @@ import com.tagtart.solstick.item.custom.LunchBagItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import squeek.appleskin.api.event.FoodValuesEvent;
@@ -19,7 +20,7 @@ public class AppleSkinEventHandler {
             return;
         }
 
-        ResourceLocation foodId = resolveTrackedFoodId(event.itemStack);
+        ResourceLocation foodId = resolveTrackedFoodId(event.itemStack, event.player);
         float foodEffectiveness = playerStomach.getFoodEffectiveness(foodId);
         int newNutrition = Math.round(baseProperties.nutrition() * foodEffectiveness);
         float newSaturation = 0.0F;
@@ -37,9 +38,9 @@ public class AppleSkinEventHandler {
                 baseProperties.effects());
     }
 
-    private static ResourceLocation resolveTrackedFoodId(ItemStack stack) {
+    private static ResourceLocation resolveTrackedFoodId(ItemStack stack, Player player) {
         if (stack.is(ModItems.LUNCH_BAG.get())) {
-            ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack);
+            ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack, player);
             if (!selectedFood.isEmpty()) {
                 return BuiltInRegistries.ITEM.getKey(selectedFood.getItem());
             }

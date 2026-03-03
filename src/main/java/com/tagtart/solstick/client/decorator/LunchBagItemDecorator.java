@@ -3,6 +3,7 @@ package com.tagtart.solstick.client.decorator;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.item.ModItems;
 import com.tagtart.solstick.item.custom.LunchBagItem;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +29,7 @@ public final class LunchBagItemDecorator implements IItemDecorator {
 
     @Override
     public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
-        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack);
+        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack, Minecraft.getInstance().player);
         if (selectedFood.isEmpty()) {
             return false;
         }

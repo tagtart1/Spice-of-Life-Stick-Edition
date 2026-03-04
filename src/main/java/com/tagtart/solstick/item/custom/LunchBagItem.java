@@ -36,7 +36,8 @@ public class LunchBagItem extends Item {
         ItemStack heldItem = player.getItemInHand(usedHand);
         ItemStack selectedFood = getSelectedFoodStack(heldItem, player);
         FoodProperties selectedFoodProperties = selectedFood.getFoodProperties(player);
-        if (!selectedFood.isEmpty() && selectedFoodProperties != null && player.canEat(selectedFoodProperties.canAlwaysEat())) {
+        if (!selectedFood.isEmpty() && selectedFoodProperties != null
+                && player.canEat(selectedFoodProperties.canAlwaysEat())) {
             player.startUsingItem(usedHand);
             return InteractionResultHolder.consume(heldItem);
         }
@@ -196,10 +197,6 @@ public class LunchBagItem extends Item {
         return !stack.isEmpty() && stack.has(DataComponents.FOOD);
     }
 
-    public static ItemStack getSelectedFoodStack(ItemStack lunchBag) {
-        return getSelectedFoodStack(lunchBag, null);
-    }
-
     public static ItemStack getSelectedFoodStack(ItemStack lunchBag, @Nullable LivingEntity entity) {
         if (!(lunchBag.getItem() instanceof LunchBagItem)) {
             return ItemStack.EMPTY;
@@ -225,10 +222,6 @@ public class LunchBagItem extends Item {
 
         NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
         return isFood(storedItems.get(slotIndex));
-    }
-
-    public static int getNextFilledFoodSlot(ItemStack lunchBag, int currentSlotIndex, int direction) {
-        return getNextSelectableSlot(lunchBag, currentSlotIndex, direction);
     }
 
     public static int getNextSelectableSlot(ItemStack lunchBag, int currentSlotIndex, int direction) {
@@ -435,4 +428,27 @@ public class LunchBagItem extends Item {
         }
     }
 
+    /* Storage capacity bar */
+    @Override
+    public boolean isBarVisible(ItemStack lunchBag) {
+        return hasAnyFood(lunchBag);
+    }
+
+    @Override
+    public int getBarWidth(ItemStack lunchBag) {
+        NonNullList<ItemStack> storedItems = getStoredItems(lunchBag);
+        int filledSlots = 0;
+        for (ItemStack stack : storedItems) {
+            if (!stack.isEmpty()) {
+                filledSlots++;
+            }
+        }
+        float maxBarWidth = 13.0F; // 13 pixels wide, native vanilla behavior
+        return Math.round(maxBarWidth * (float) filledSlots / LunchBagConstants.SLOT_COUNT);
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        return 0x5555FF; // Classic blue
+    }
 }

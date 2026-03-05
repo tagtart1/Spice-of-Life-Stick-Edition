@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 public final class LunchBagItemDecorator implements IItemDecorator {
     private static final LunchBagItemDecorator INSTANCE = new LunchBagItemDecorator();
     private static final int OVERLAY_OFFSET_X = 10;
-    private static final int OVERLAY_OFFSET_Y = 10;
+    private static final int OVERLAY_OFFSET_Y = 8;
 
     private LunchBagItemDecorator() {
     }

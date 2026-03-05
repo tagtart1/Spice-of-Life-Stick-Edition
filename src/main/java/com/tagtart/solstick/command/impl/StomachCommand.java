@@ -1,6 +1,7 @@
 package com.tagtart.solstick.command.impl;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.tagtart.solstick.Config;
 import com.tagtart.solstick.ModAttachments;
 import com.tagtart.solstick.PlayerStomach;
 import com.tagtart.solstick.command.ModCommand;
@@ -46,10 +47,11 @@ public final class StomachCommand implements ModCommand {
         }
 
         // Queue is stored oldest -> newest. Render newest first for readability,
-        // and mark the oldest entry as the one that will drop out next.
+        // and mark the oldest entry as the one that will drop out next only when full.
+        boolean queueIsFull = queue.size() >= Config.STOMACH_QUEUE_SIZE.get();
         for (int queueIndex = queue.size() - 1, lineNumber = 1; queueIndex >= 0; queueIndex--, lineNumber++) {
             ResourceLocation foodId = queue.get(queueIndex);
-            boolean isNextToExit = queueIndex == 0;
+            boolean isNextToExit = queueIsFull && queueIndex == 0;
             final Component queueLine = buildQueueLine(foodId, lineNumber, isNextToExit);
             source.sendSuccess(() -> queueLine, false);
         }
@@ -86,7 +88,8 @@ public final class StomachCommand implements ModCommand {
         int percent = Math.round(stomach.getFoodEffectiveness(foodId) * 100.0F);
         return resolveFoodDisplayName(foodId)
                 .copy()
-                .append(Component.literal(" effectiveness: " + percent + "%").withStyle(ChatFormatting.GREEN));
+                .append(Component.literal(" Effectiveness: "))
+                .append(Component.literal(percent + "%").withStyle(ChatFormatting.GREEN));
     }
 
     private static Component resolveFoodDisplayName(ResourceLocation foodId) {

@@ -18,5 +18,9 @@ public final class ModPayloads {
                 LunchBagSelectSlotPayload.TYPE,
                 LunchBagSelectSlotPayload.STREAM_CODEC,
                 LunchBagSelectSlotPayload::handle);
+        registrar.playToServer(
+                LunchBagSetOpenPayload.TYPE,
+                LunchBagSetOpenPayload.STREAM_CODEC,
+                LunchBagSetOpenPayload::handle);
     }
 }

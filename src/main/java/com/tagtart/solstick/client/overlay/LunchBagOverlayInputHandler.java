@@ -16,6 +16,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
 import com.tagtart.solstick.network.LunchBagSelectSlotPayload;
+import com.tagtart.solstick.network.LunchBagSetOpenPayload;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import org.lwjgl.glfw.GLFW;
@@ -37,15 +38,19 @@ public final class LunchBagOverlayInputHandler {
             return;
         }
 
-        ItemStack lunchBag = getHeldLunchBag(minecraft.player);
-        if (lunchBag.isEmpty()) {
+        InteractionHand hand = getHeldLunchBagHand(minecraft.player);
+        if (hand == null) {
             return;
         }
+        ItemStack lunchBag = minecraft.player.getItemInHand(hand);
 
-        LunchBagOverlayState.toggle();
-        if (LunchBagOverlayState.isVisible()) {
-            lockAndRestoreHotbar(minecraft.player);
+        boolean newOpenState = !LunchBagItem.isOpen(lunchBag);
+        LunchBagItem.setOpen(lunchBag, newOpenState);
+        PacketDistributor.sendToServer(new LunchBagSetOpenPayload(newOpenState, hand == InteractionHand.OFF_HAND));
+        if (newOpenState) {
+            LunchBagOverlayState.hide();
         }
+        minecraft.player.swing(hand);
         event.setCanceled(true);
     }
 
@@ -79,22 +84,27 @@ public final class LunchBagOverlayInputHandler {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!LunchBagOverlayState.isVisible()) {
-            LunchBagOverlayState.clearLockedHotbarSlot();
-            return;
+        Player player = minecraft.player;
+        boolean wasVisible = LunchBagOverlayState.isVisible();
+        boolean shouldShowOverlay = false;
+        InteractionHand hand = null;
+
+        if (player != null && minecraft.screen == null) {
+            hand = getHeldLunchBagHand(player);
+            if (hand != null) {
+                ItemStack lunchBag = player.getItemInHand(hand);
+                shouldShowOverlay = !LunchBagItem.isOpen(lunchBag)
+                        && player.isUsingItem()
+                        && player.getUseItem().is(ModItems.LUNCH_BAG.get());
+            }
         }
 
-        if (minecraft.player == null) {
-            return;
+        LunchBagOverlayState.setVisible(shouldShowOverlay);
+        if (shouldShowOverlay) {
+            lockAndRestoreHotbar(player);
+        } else if (wasVisible && player != null) {
+            swingCosmetically(player, hand);
         }
-
-        ItemStack lunchBag = getHeldLunchBag(minecraft.player);
-        if (lunchBag.isEmpty()) {
-            LunchBagOverlayState.hide();
-            return;
-        }
-
-        lockAndRestoreHotbar(minecraft.player);
     }
 
     public static boolean onKeyboardKeyPress(int key, int action) {
@@ -128,20 +138,6 @@ public final class LunchBagOverlayInputHandler {
 
     private static boolean shouldHandleOverlayInput(Minecraft minecraft) {
         return LunchBagOverlayState.isVisible() && minecraft.player != null && minecraft.screen == null;
-    }
-
-    private static ItemStack getHeldLunchBag(Player player) {
-        ItemStack mainHand = player.getMainHandItem();
-        if (mainHand.is(ModItems.LUNCH_BAG.get())) {
-            return mainHand;
-        }
-
-        ItemStack offHand = player.getOffhandItem();
-        if (offHand.is(ModItems.LUNCH_BAG.get())) {
-            return offHand;
-        }
-
-        return ItemStack.EMPTY;
     }
 
     @Nullable
@@ -183,6 +179,10 @@ public final class LunchBagOverlayInputHandler {
         int normalizedSlot = Math.floorMod(selectedSlot, LunchBagConstants.TOTAL_SELECTABLE_SLOTS);
         lunchBag.set(ModDataComponents.LUNCH_BAG_SELECTED_SLOT.get(), normalizedSlot);
         PacketDistributor.sendToServer(new LunchBagSelectSlotPayload(normalizedSlot, hand == InteractionHand.OFF_HAND));
+    }
+
+    private static void swingCosmetically(Player player, @Nullable InteractionHand hand) {
+        player.swing(hand == null ? InteractionHand.MAIN_HAND : hand);
     }
 
 }

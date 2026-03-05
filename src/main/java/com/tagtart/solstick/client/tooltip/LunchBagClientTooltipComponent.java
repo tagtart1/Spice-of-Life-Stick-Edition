@@ -15,6 +15,7 @@ public final class LunchBagClientTooltipComponent implements ClientTooltipCompon
     private static final int SLOT_WIDTH = 18;
     private static final int SLOT_HEIGHT = 20;
     private static final int BORDER = 1;
+    private static final int POST_IMAGE_SPACING = 4;
     private static final ResourceLocation TOOLTIP_BACKGROUND_SPRITE = ResourceLocation
             .fromNamespaceAndPath(SOLStick.MODID, "lunchbag_tooltip_background");
     private static final ResourceLocation TOOLTIP_SLOT_SPRITE = ResourceLocation
@@ -31,7 +32,7 @@ public final class LunchBagClientTooltipComponent implements ClientTooltipCompon
 
     @Override
     public int getHeight() {
-        return BORDER * 2 + SLOT_HEIGHT;
+        return BORDER * 2 + SLOT_HEIGHT + POST_IMAGE_SPACING;
     }
 
     @Override
@@ -42,8 +43,8 @@ public final class LunchBagClientTooltipComponent implements ClientTooltipCompon
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
         int totalWidth = getWidth(font);
-        int totalHeight = getHeight();
-        guiGraphics.blitSprite(TOOLTIP_BACKGROUND_SPRITE, x, y, totalWidth, totalHeight);
+        int imageHeight = BORDER * 2 + SLOT_HEIGHT;
+        guiGraphics.blitSprite(TOOLTIP_BACKGROUND_SPRITE, x, y, totalWidth, imageHeight);
 
         for (int i = 0; i < LunchBagConstants.SLOT_COUNT; i++) {
             int slotX = x + BORDER + i * SLOT_WIDTH;

@@ -4,9 +4,11 @@ import com.tagtart.solstick.ModAttachments;
 import com.tagtart.solstick.PlayerStomach;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.tooltip.LunchBagTooltipComponent;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -16,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.inventory.ClickAction;
@@ -24,6 +27,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 public class LunchBagItem extends Item {
@@ -34,6 +38,11 @@ public class LunchBagItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack heldItem = player.getItemInHand(usedHand);
+        if (!isOpen(heldItem)) {
+            player.startUsingItem(usedHand);
+            return InteractionResultHolder.consume(heldItem);
+        }
+
         ItemStack selectedFood = getSelectedFoodStack(heldItem, player);
         FoodProperties selectedFoodProperties = selectedFood.getFoodProperties(player);
         if (!selectedFood.isEmpty() && selectedFoodProperties != null
@@ -48,18 +57,27 @@ public class LunchBagItem extends Item {
     @Override
     @Nullable
     public FoodProperties getFoodProperties(ItemStack stack, @Nullable LivingEntity entity) {
+        if (!isOpen(stack)) {
+            return null;
+        }
         ItemStack selectedFood = getSelectedFoodStack(stack, entity);
         return selectedFood.isEmpty() ? null : selectedFood.getFoodProperties(entity);
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        if (!isOpen(stack)) {
+            return 72000;
+        }
         ItemStack selectedFood = getSelectedFoodStack(stack, entity);
         return selectedFood.isEmpty() ? super.getUseDuration(stack, entity) : selectedFood.getUseDuration(entity);
     }
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
+        if (!isOpen(stack)) {
+            return UseAnim.NONE;
+        }
         ItemStack selectedFood = getSelectedFoodStack(stack, null);
         return selectedFood.isEmpty() ? super.getUseAnimation(stack) : selectedFood.getUseAnimation();
     }
@@ -79,6 +97,10 @@ public class LunchBagItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        if (!isOpen(stack)) {
+            return stack;
+        }
+
         int selectedSlot = resolveActiveFoodSlotIndex(stack, livingEntity);
         if (selectedSlot < 0) {
             return stack;
@@ -196,6 +218,23 @@ public class LunchBagItem extends Item {
         slotAccess.set(remainder);
         slot.setChanged();
         return true;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents,
+            TooltipFlag tooltipFlag) {
+        String key = isOpen(stack) ? "tooltip.solstick.lunch_bag.state.open" : "tooltip.solstick.lunch_bag.state.closed";
+        Component stateHint = Component.translatable(key, Component.keybind("key.attack"))
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
+        tooltipComponents.add(stateHint);
+    }
+
+    public static boolean isOpen(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponents.LUNCH_BAG_OPEN.get(), false);
+    }
+
+    public static void setOpen(ItemStack stack, boolean open) {
+        stack.set(ModDataComponents.LUNCH_BAG_OPEN.get(), open);
     }
 
     private static boolean isFood(ItemStack stack) {

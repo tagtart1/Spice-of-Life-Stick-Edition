@@ -28,6 +28,13 @@ public final class ModDataComponents {
                             .persistent(Codec.INT)
                             .networkSynchronized(ByteBufCodecs.VAR_INT)
                             .cacheEncoding());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> LUNCH_BAG_OPEN = DATA_COMPONENTS
+            .registerComponentType(
+                    "lunch_bag_open",
+                    builder -> builder
+                            .persistent(Codec.BOOL)
+                            .networkSynchronized(ByteBufCodecs.BOOL)
+                            .cacheEncoding());
 
     private ModDataComponents() {
     }

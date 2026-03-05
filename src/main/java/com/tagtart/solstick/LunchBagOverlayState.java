@@ -11,11 +11,16 @@ public final class LunchBagOverlayState {
         return visible;
     }
 
-    public static void toggle() {
-        visible = !visible;
-        if (!visible) {
-            clearLockedHotbarSlot();
+    public static void setVisible(boolean shouldBeVisible) {
+        if (shouldBeVisible) {
+            show();
+        } else {
+            hide();
         }
+    }
+
+    public static void show() {
+        visible = true;
     }
 
     public static void hide() {

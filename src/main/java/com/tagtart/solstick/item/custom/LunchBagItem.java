@@ -100,10 +100,13 @@ public class LunchBagItem extends Item {
         if (action != ClickAction.SECONDARY) {
             return false;
         }
+        // Creative inventory uses picker-style slots, so we bypass slot permission checks and
+        // client-side early returns there; survival keeps the guarded server-authoritative flow.
+        boolean creativeBypass = player.getAbilities().instabuild;
 
         ItemStack slotStack = slot.getItem();
         if (slotStack.isEmpty()) {
-            if (player.level().isClientSide()) {
+            if (!creativeBypass && player.level().isClientSide()) {
                 return true;
             }
 
@@ -125,11 +128,11 @@ public class LunchBagItem extends Item {
             return true;
         }
 
-        if (!slot.mayPickup(player) || !isFood(slotStack)) {
+        if ((!creativeBypass && !slot.mayPickup(player)) || !isFood(slotStack)) {
             return false;
         }
 
-        if (player.level().isClientSide()) {
+        if (!creativeBypass && player.level().isClientSide()) {
             return true;
         }
 
@@ -150,12 +153,14 @@ public class LunchBagItem extends Item {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction action,
             Player player, SlotAccess slotAccess) {
-        if (action != ClickAction.SECONDARY || !slot.allowModification(player)) {
+        // Same creative bypass policy as overrideStackedOnOther for consistent behavior.
+        boolean creativeBypass = player.getAbilities().instabuild;
+        if (action != ClickAction.SECONDARY || (!creativeBypass && !slot.allowModification(player))) {
             return false;
         }
 
         if (otherStack.isEmpty()) {
-            if (player.level().isClientSide()) {
+            if (!creativeBypass && player.level().isClientSide()) {
                 return true;
             }
 
@@ -177,7 +182,7 @@ public class LunchBagItem extends Item {
             return false;
         }
 
-        if (player.level().isClientSide()) {
+        if (!creativeBypass && player.level().isClientSide()) {
             return true;
         }
 

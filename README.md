@@ -10,15 +10,16 @@
 
 - A simple but effective food system that promotes food diversity by reducing a food's nutrition and saturation each time you eat it. The only way to raise its effectiveness back up is to simply eat different foods!
 
-- Adds a handy dandy **Lunch Bag** item that allows you to store multiple stacks of food into a single inventory slot, working similar to a bundle.
+- Adds a handy dandy **Lunch Bag** item that allows you to store multiple stacks of food into a single inventory slot, working similarly to a bundle.
 
 - `/solstick stomach` An easy way to view the contents of your tummy and see what foods have lost some of their effectiveness.
 
 - AppleSkin compatibility allows you to easily view the current nutrition and saturation of food vs. its max effectiveness.
+  - <em>It is highly recommended that you have AppleSkin installed with this mod!</em>
 
-- Fully multiplayer supportive, each player has a unique stomach!
+- Fully multiplayer supported, each player has a unique stomach.
 
-(show image of steak missing some effectiveness) and maybe an image of the command to)
+my poor ol' steak sitting at 50% of its true potential because it was the only thing i ate
 ## Description
 
 The main goal is to promote food diversity in a slightly more difficult but still motivating way. Instead of rewarding players for trying new foods and making the game easier, a specific food loses its effectiveness the more times you eat it. You must continually maintain a diverse set of foods throughout your world so the overall effectiveness of your other foods does not decrease too much. To make this easier, I introduced a lunch bag item so you can have up to 7 different foods with you at all times. 

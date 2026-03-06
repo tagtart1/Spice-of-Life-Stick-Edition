@@ -20,5 +20,12 @@
       "solstick:lunch_bag_open_2"
     ],
     "subtitle": "sound.solstick.lunch_bag_open"
+  },
+  "lunch_bag_output": {
+    "sounds": [
+      "solstick:lunch_bag_output_1",
+      "solstick:lunch_bag_output_2"
+    ],
+    "subtitle": "sound.solstick.lunch_bag_output"
   }
 }

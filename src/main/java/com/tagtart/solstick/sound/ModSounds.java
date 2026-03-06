@@ -15,6 +15,7 @@ public class ModSounds {
     public static final Supplier<SoundEvent> LUNCH_BAG_OPEN = registerSoundEvent("lunch_bag_open");
     public static final Supplier<SoundEvent> LUNCH_BAG_CLOSE = registerSoundEvent("lunch_bag_close");
     public static final Supplier<SoundEvent> LUNCH_BAG_INSERT = registerSoundEvent("lunch_bag_insert");
+    public static final Supplier<SoundEvent> LUNCH_BAG_OUTPUT = registerSoundEvent("lunch_bag_output");
 
     private static Supplier<SoundEvent> registerSoundEvent(String name) {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, name)));

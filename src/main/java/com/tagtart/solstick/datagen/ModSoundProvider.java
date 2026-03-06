@@ -39,5 +39,13 @@ public class ModSoundProvider extends SoundDefinitionsProvider {
                 )
                 .subtitle("sound.solstick.lunch_bag_insert")
         );
+
+        add(ModSounds.LUNCH_BAG_OUTPUT, SoundDefinition.definition()
+                .with(
+                        sound("solstick:lunch_bag_output_1"),
+                        sound("solstick:lunch_bag_output_2")
+                )
+                .subtitle("sound.solstick.lunch_bag_output")
+        );
     }
 }

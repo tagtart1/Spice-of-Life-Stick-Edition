@@ -18,8 +18,10 @@ import org.jetbrains.annotations.Nullable;
 public final class LunchBagItemRenderer extends BlockEntityWithoutLevelRenderer {
     public static final LunchBagItemRenderer INSTANCE = new LunchBagItemRenderer();
 
-    private static final ModelResourceLocation LUNCH_BAG_BASE_MODEL = ModelResourceLocation.standalone(
-            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_base"));
+    private static final ModelResourceLocation LUNCH_BAG_CLOSE_MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_close"));
+    private static final ModelResourceLocation LUNCH_BAG_OPEN_MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_open"));
 
     private LunchBagItemRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(), Minecraft.getInstance().getEntityModels());
@@ -43,7 +45,8 @@ public final class LunchBagItemRenderer extends BlockEntityWithoutLevelRenderer 
             return;
         }
 
-        BakedModel fallbackModel = minecraft.getModelManager().getModel(LUNCH_BAG_BASE_MODEL);
+        ModelResourceLocation fallbackModelLocation = LunchBagItem.isOpen(stack) ? LUNCH_BAG_OPEN_MODEL : LUNCH_BAG_CLOSE_MODEL;
+        BakedModel fallbackModel = minecraft.getModelManager().getModel(fallbackModelLocation);
         itemRenderer.render(stack, displayContext, false, poseStack, bufferSource, packedLight, packedOverlay,
                 fallbackModel);
         poseStack.popPose();

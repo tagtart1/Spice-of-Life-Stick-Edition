@@ -14,8 +14,10 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 
 @EventBusSubscriber(modid = SOLStick.MODID, value = Dist.CLIENT)
 public final class ModItemClientExtensions {
-    private static final ModelResourceLocation LUNCH_BAG_BASE_MODEL = ModelResourceLocation.standalone(
-            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_base"));
+    private static final ModelResourceLocation LUNCH_BAG_CLOSE_MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_close"));
+    private static final ModelResourceLocation LUNCH_BAG_OPEN_MODEL = ModelResourceLocation.standalone(
+            ResourceLocation.fromNamespaceAndPath(SOLStick.MODID, "item/lunch_bag_open"));
 
     private static final IClientItemExtensions LUNCH_BAG_EXTENSIONS = new IClientItemExtensions() {
         @Override
@@ -34,6 +36,7 @@ public final class ModItemClientExtensions {
 
     @SubscribeEvent
     public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
-        event.register(LUNCH_BAG_BASE_MODEL);
+        event.register(LUNCH_BAG_CLOSE_MODEL);
+        event.register(LUNCH_BAG_OPEN_MODEL);
     }
 }

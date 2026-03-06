@@ -11,6 +11,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -149,6 +151,7 @@ public class LunchBagItem extends Item {
             }
 
             slot.setChanged();
+            playOutputSound(player);
             return true;
         }
 
@@ -200,6 +203,7 @@ public class LunchBagItem extends Item {
             }
 
             slot.setChanged();
+            playOutputSound(player);
             return true;
         }
 
@@ -242,19 +246,26 @@ public class LunchBagItem extends Item {
     }
 
     private static void playInsertSound(Player player) {
+        playBagSound(player, ModSounds.LUNCH_BAG_INSERT.get(), 0.6F, 0.8F);
+    }
+
+    private static void playOutputSound(Player player) {
+        // Output uses normal pitch (1.0F) while insert remains lower-pitched.
+        playBagSound(player, ModSounds.LUNCH_BAG_OUTPUT.get(), 0.8F, 1.0F);
+    }
+
+    private static void playBagSound(Player player, SoundEvent soundEvent, float volume, float pitch) {
         if (player.level().isClientSide()) {
+            // Creative inventory interactions are often client-authoritative.
+            if (player.getAbilities().instabuild) {
+                player.playSound(soundEvent, volume, pitch);
+            }
             return;
         }
 
-        player.level().playSound(
-                null,
-                player.getX(),
-                player.getY(),
-                player.getZ(),
-                ModSounds.LUNCH_BAG_INSERT.get(),
-                SoundSource.PLAYERS,
-                0.8F,
-                1.0F);
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.playNotifySound(soundEvent, SoundSource.PLAYERS, volume, pitch);
+        }
     }
 
     private static boolean isFood(ItemStack stack) {

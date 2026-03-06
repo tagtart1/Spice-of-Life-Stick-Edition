@@ -44,15 +44,11 @@ public record LunchBagSetOpenPayload(boolean open, boolean offhand) implements C
             }
 
             heldStack.set(ModDataComponents.LUNCH_BAG_OPEN.get(), payload.open);
-            serverPlayer.level().playSound(
-                    null,
-                    serverPlayer.getX(),
-                    serverPlayer.getY(),
-                    serverPlayer.getZ(),
+            serverPlayer.playNotifySound(
                     payload.open ? ModSounds.LUNCH_BAG_OPEN.get() : ModSounds.LUNCH_BAG_CLOSE.get(),
                     SoundSource.PLAYERS,
                     0.8F,
-                    1.0F);
+                    0.8F);
         });
     }
 }

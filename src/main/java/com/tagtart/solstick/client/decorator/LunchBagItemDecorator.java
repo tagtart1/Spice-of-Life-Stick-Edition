@@ -36,7 +36,7 @@ public final class LunchBagItemDecorator implements IItemDecorator {
 
         // Draw selected-food preview in the item icon's bottom-right corner.
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(xOffset + OVERLAY_OFFSET_X, yOffset + OVERLAY_OFFSET_Y, 136.0D);
+        guiGraphics.pose().translate(xOffset + OVERLAY_OFFSET_X, yOffset + OVERLAY_OFFSET_Y, 0.0D);
         guiGraphics.pose().scale(0.4F, 0.4F, 1.0F);
         guiGraphics.renderFakeItem(selectedFood, 0, 0);
         guiGraphics.pose().popPose();

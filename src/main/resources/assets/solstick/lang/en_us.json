@@ -9,6 +9,7 @@
   "sound.solstick.lunch_bag_open": "Lunch bag opens",
   "sound.solstick.lunch_bag_close": "Lunch bag closes",
   "sound.solstick.lunch_bag_insert": "Item inserted into lunch bag",
+  "sound.solstick.lunch_bag_output": "Item removed from lunch bag",
 
   "solstick.configuration.title": "SOLStick Configs",
   "solstick.configuration.section.solstick.common.toml": "SOLStick Configs",

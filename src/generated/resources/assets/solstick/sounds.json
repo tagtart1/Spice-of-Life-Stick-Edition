@@ -1,0 +1,24 @@
+{
+  "lunch_bag_close": {
+    "sounds": [
+      "solstick:lunch_bag_close_1",
+      "solstick:lunch_bag_close_2"
+    ],
+    "subtitle": "sound.solstick.lunch_bag_close"
+  },
+  "lunch_bag_insert": {
+    "sounds": [
+      "solstick:lunch_bag_insert_1",
+      "solstick:lunch_bag_insert_2",
+      "solstick:lunch_bag_insert_3"
+    ],
+    "subtitle": "sound.solstick.lunch_bag_insert"
+  },
+  "lunch_bag_open": {
+    "sounds": [
+      "solstick:lunch_bag_open_1",
+      "solstick:lunch_bag_open_2"
+    ],
+    "subtitle": "sound.solstick.lunch_bag_open"
+  }
+}

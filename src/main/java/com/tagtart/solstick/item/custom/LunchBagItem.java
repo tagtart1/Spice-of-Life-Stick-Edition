@@ -4,12 +4,14 @@ import com.tagtart.solstick.ModAttachments;
 import com.tagtart.solstick.PlayerStomach;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.tooltip.LunchBagTooltipComponent;
+import com.tagtart.solstick.sound.ModSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -169,6 +171,7 @@ public class LunchBagItem extends Item {
         } else {
             slot.setChanged();
         }
+        playInsertSound(player);
         return true;
     }
 
@@ -217,6 +220,7 @@ public class LunchBagItem extends Item {
         remainder.shrink(inserted);
         slotAccess.set(remainder);
         slot.setChanged();
+        playInsertSound(player);
         return true;
     }
 
@@ -235,6 +239,22 @@ public class LunchBagItem extends Item {
 
     public static void setOpen(ItemStack stack, boolean open) {
         stack.set(ModDataComponents.LUNCH_BAG_OPEN.get(), open);
+    }
+
+    private static void playInsertSound(Player player) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
+        player.level().playSound(
+                null,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                ModSounds.LUNCH_BAG_INSERT.get(),
+                SoundSource.PLAYERS,
+                0.8F,
+                1.0F);
     }
 
     private static boolean isFood(ItemStack stack) {

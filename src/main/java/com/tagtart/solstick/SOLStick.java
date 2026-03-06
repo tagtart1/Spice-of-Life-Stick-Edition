@@ -3,6 +3,7 @@ package com.tagtart.solstick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModCreativeModeTabs;
 import com.tagtart.solstick.item.ModItems;
+import com.tagtart.solstick.sound.ModSounds;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -29,6 +30,7 @@ public class SOLStick {
         ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
         ModCreativeModeTabs.register(modEventBus);
+        ModSounds.register(modEventBus);
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 

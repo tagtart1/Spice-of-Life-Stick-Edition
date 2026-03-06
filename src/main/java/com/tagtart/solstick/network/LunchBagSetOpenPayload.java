@@ -3,6 +3,7 @@ package com.tagtart.solstick.network;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
+import com.tagtart.solstick.sound.ModSounds;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -11,6 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.sounds.SoundSource;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public record LunchBagSetOpenPayload(boolean open, boolean offhand) implements CustomPacketPayload {
@@ -42,6 +44,15 @@ public record LunchBagSetOpenPayload(boolean open, boolean offhand) implements C
             }
 
             heldStack.set(ModDataComponents.LUNCH_BAG_OPEN.get(), payload.open);
+            serverPlayer.level().playSound(
+                    null,
+                    serverPlayer.getX(),
+                    serverPlayer.getY(),
+                    serverPlayer.getZ(),
+                    payload.open ? ModSounds.LUNCH_BAG_OPEN.get() : ModSounds.LUNCH_BAG_CLOSE.get(),
+                    SoundSource.PLAYERS,
+                    0.8F,
+                    1.0F);
         });
     }
 }

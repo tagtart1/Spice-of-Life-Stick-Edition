@@ -3,9 +3,12 @@
   "creative.solstick.title": "Spice of Life: Stick Edition",
   "container.solstick.lunch_bag": "Lunch Bag",
   "item.solstick.lunch_bag": "Lunch Bag",
-  "tooltip.solstick.lunch_bag": "A packed lunch for the road.",
+
   "tooltip.solstick.lunch_bag.state.closed": "%s to Open",
   "tooltip.solstick.lunch_bag.state.open": "%s to Close",
+  "sound.solstick.lunch_bag_open": "Lunch bag opens",
+  "sound.solstick.lunch_bag_close": "Lunch bag closes",
+  "sound.solstick.lunch_bag_insert": "Item inserted into lunch bag",
 
   "solstick.configuration.title": "SOLStick Configs",
   "solstick.configuration.section.solstick.common.toml": "SOLStick Configs",

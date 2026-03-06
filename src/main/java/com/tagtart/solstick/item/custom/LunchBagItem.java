@@ -126,8 +126,7 @@ public class LunchBagItem extends Item {
         if (action != ClickAction.SECONDARY) {
             return false;
         }
-        // Creative inventory uses picker-style slots, so we bypass slot permission checks and
-        // client-side early returns there; survival keeps the guarded server-authoritative flow.
+
         boolean creativeBypass = player.getAbilities().instabuild;
 
         ItemStack slotStack = slot.getItem();
@@ -141,12 +140,14 @@ public class LunchBagItem extends Item {
                 return false;
             }
 
+            int extractedCount = extracted.getCount();
             ItemStack remainder = slot.safeInsert(extracted);
             if (!remainder.isEmpty()) {
                 insertFoodIntoBag(stack, remainder);
             }
 
-            if (remainder.getCount() == extracted.getCount()) {
+            int movedCount = extractedCount - remainder.getCount();
+            if (movedCount <= 0) {
                 return false;
             }
 

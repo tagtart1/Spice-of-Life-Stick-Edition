@@ -130,9 +130,6 @@ dependencies {
     compileOnly "squeek.appleskin:appleskin-neoforge:mc1.21-3.0.8:api"
     runtimeOnly "squeek.appleskin:appleskin-neoforge:mc1.21-3.0.8"
 
-    // Dev-only runtime mods for local testing.
-    localRuntime "maven.modrinth:moonlight:${moonlight_version}"
-    localRuntime "maven.modrinth:supplementaries:${supplementaries_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

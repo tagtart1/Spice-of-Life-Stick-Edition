@@ -26,11 +26,14 @@
 </p>
 
 <p align="center"><em>my poor ol' steak sitting at 50% of its true potential because it is the only thing i eat</em></p>
+
 ## Description
 
-The main goal is to promote food diversity in a slightly more difficult but still motivating way. Instead of rewarding players for trying new foods and making the game easier, a specific food loses its effectiveness the more times you eat it. You must continually maintain a diverse set of foods throughout your world so the overall effectiveness of your other foods does not decrease too much. To make this easier, I introduced a lunch bag item so you can have up to 7 different foods with you at all times. 
+Do you miss the roots of the original spice of life? Looking for a version of Spice of Life that does not grant you excessive buffs? Do you just need a slight nudge to try out other foods? You found the mod.
 
-The idea is to have a slight nudge to try different foods in the game whether you are playing with modded food or not. The default config is balanced around the amount of slots in the Lunch bag (7). It not meant to be a very difficult mod but something to motivate you to build some infrastructure to maintain a variety of a few different food items.
+This mod promotes food diversity in a slightly more challenging but still rewarding way. Instead of rewarding players for trying new foods, repeatedly eating the same food reduces its effectiveness. Maintaining a varied diet restores foods to their normal effectiveness.
+
+This mod is intended to still be forigving and be just a nudge. You won't witness dramatic drops in effectiveness. You will most likely juggle about 6 or 7 different foods at a time. To make juggling foods easier, there is a new Lunch Bag item to store multiple stacks of food into 1 slot.
 
 ## Configuration
 

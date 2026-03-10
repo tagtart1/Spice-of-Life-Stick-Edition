@@ -14,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -288,6 +289,22 @@ public class LunchBagItem extends Item {
         return isFood(selectedFood) ? selectedFood : ItemStack.EMPTY;
     }
 
+    @Nullable
+    public static FoodPreview getSelectedFoodPreview(ItemStack lunchBag, @Nullable LivingEntity entity) {
+        ItemStack selectedFood = getSelectedFoodStack(lunchBag, entity);
+        if (selectedFood.isEmpty()) {
+            return null;
+        }
+
+        FoodProperties defaultFoodProperties = selectedFood.getFoodProperties(entity);
+        if (defaultFoodProperties == null) {
+            return null;
+        }
+
+        FoodProperties modifiedFoodProperties = createModifiedFoodProperties(selectedFood, defaultFoodProperties, entity);
+        return new FoodPreview(selectedFood, defaultFoodProperties, modifiedFoodProperties);
+    }
+
     public static boolean hasFoodAtSlot(ItemStack lunchBag, int slotIndex) {
         if (!(lunchBag.getItem() instanceof LunchBagItem)) {
             return false;
@@ -410,6 +427,20 @@ public class LunchBagItem extends Item {
         return effectiveness;
     }
 
+    private static FoodProperties createModifiedFoodProperties(ItemStack foodStack, FoodProperties baseFoodProperties,
+            @Nullable LivingEntity entity) {
+        float effectiveness = getFoodEffectiveness(foodStack, entity);
+        int modifiedNutrition = computeModifiedNutrition(baseFoodProperties, effectiveness);
+        float modifiedSaturation = computeModifiedSaturation(baseFoodProperties, modifiedNutrition);
+        return new FoodProperties(
+                modifiedNutrition,
+                modifiedSaturation,
+                baseFoodProperties.canAlwaysEat(),
+                baseFoodProperties.eatSeconds(),
+                baseFoodProperties.usingConvertsTo(),
+                baseFoodProperties.effects());
+    }
+
     private static int computeModifiedNutrition(FoodProperties foodProperties, float effectiveness) {
         return Math.round(foodProperties.nutrition() * effectiveness);
     }
@@ -526,5 +557,16 @@ public class LunchBagItem extends Item {
     @Override
     public int getBarColor(ItemStack stack) {
         return 0x5555FF; // Classic blue
+    }
+
+    public record FoodPreview(ItemStack stack, FoodProperties defaultFoodProperties, FoodProperties modifiedFoodProperties) {
+        public boolean isRotten() {
+            for (FoodProperties.PossibleEffect effect : modifiedFoodProperties.effects()) {
+                if (effect.effect().getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

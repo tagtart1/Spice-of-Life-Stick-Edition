@@ -38,6 +38,7 @@ public final class LunchBagOverlayRenderer {
     private static final int BEST_SELECTION_FRAME_WIDTH = 24;
     private static final int BEST_SELECTION_FRAME_HEIGHT = 24;
     private static final int ITEM_NAME_VERTICAL_GAP = 6;
+    private static final int FOOD_PREVIEW_VERTICAL_GAP = 4;
     private static final int TEXT_SCREEN_PADDING = 2;
     private static final int BEST_FOOD_FIRST_TEXT_COLOR = 0x55FF55;
     private static final String BEST_FOOD_FIRST_LABEL = "Best Food First";
@@ -82,7 +83,9 @@ public final class LunchBagOverlayRenderer {
                 TEXTURE_HEIGHT);
         renderStoredItems(event, lunchBag, x, y, minecraft);
         renderSelectionFrame(event, lunchBag, x, y, minecraft);
-        renderSelectedItemName(event, lunchBag, x, y, minecraft);
+        LunchBagItem.FoodPreview foodPreview = LunchBagItem.getSelectedFoodPreview(lunchBag, minecraft.player);
+        renderFoodPreview(event, foodPreview, x, y);
+        renderSelectedItemName(event, lunchBag, foodPreview, x, y, minecraft);
         event.getGuiGraphics().setColor(1.0F, 1.0F, 1.0F, 1.0F);
 
     }
@@ -167,22 +170,35 @@ public final class LunchBagOverlayRenderer {
                 SELECTION_FRAME_HEIGHT);
     }
 
-    private static void renderSelectedItemName(RenderGuiEvent.Post event, ItemStack lunchBag, int left, int top,
-            Minecraft minecraft) {
+    private static void renderFoodPreview(RenderGuiEvent.Post event, LunchBagItem.FoodPreview foodPreview, int left,
+            int top) {
+        if (foodPreview == null) {
+            return;
+        }
+
+        int previewHeight = LunchBagFoodPreviewRenderer.getHeight(foodPreview);
+        int previewY = Math.max(TEXT_SCREEN_PADDING, top - FOOD_PREVIEW_VERTICAL_GAP - previewHeight);
+        LunchBagFoodPreviewRenderer.render(event.getGuiGraphics(), foodPreview, left, previewY, TEXTURE_WIDTH);
+    }
+
+    private static void renderSelectedItemName(RenderGuiEvent.Post event, ItemStack lunchBag,
+            LunchBagItem.FoodPreview foodPreview, int left, int top, Minecraft minecraft) {
+        int previewHeight = LunchBagFoodPreviewRenderer.getHeight(foodPreview);
+        int nameY = top - FOOD_PREVIEW_VERTICAL_GAP - previewHeight - ITEM_NAME_VERTICAL_GAP - minecraft.font.lineHeight;
+
         int selectedSlot = LunchBagItem.getSelectedSlotIndex(lunchBag);
         if (LunchBagItem.isHiddenBestSlot(selectedSlot)) {
-            drawCenteredText(event, minecraft, left, top, BEST_FOOD_FIRST_LABEL, BEST_FOOD_FIRST_TEXT_COLOR);
+            drawCenteredText(event, minecraft, left, nameY, BEST_FOOD_FIRST_LABEL, BEST_FOOD_FIRST_TEXT_COLOR);
             return;
         }
 
-        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(lunchBag, minecraft.player);
-        if (selectedFood.isEmpty()) {
+        if (foodPreview == null) {
             return;
         }
 
-        Component name = selectedFood.getHoverName();
-        int textColor = resolveItemNameColor(selectedFood, name);
-        drawCenteredText(event, minecraft, left, top, name.getString(), textColor);
+        Component name = foodPreview.stack().getHoverName();
+        int textColor = resolveItemNameColor(foodPreview.stack(), name);
+        drawCenteredText(event, minecraft, left, nameY, name.getString(), textColor);
     }
 
     private static int resolveItemNameColor(ItemStack stack, Component name) {
@@ -198,14 +214,13 @@ public final class LunchBagOverlayRenderer {
         return 0xFFFFFF;
     }
 
-    private static void drawCenteredText(RenderGuiEvent.Post event, Minecraft minecraft, int left, int top, String text,
+    private static void drawCenteredText(RenderGuiEvent.Post event, Minecraft minecraft, int left, int y, String text,
             int color) {
         int textWidth = minecraft.font.width(text);
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
         int centeredX = left + (TEXTURE_WIDTH - textWidth) / 2;
         int maxX = Math.max(TEXT_SCREEN_PADDING, screenWidth - textWidth - TEXT_SCREEN_PADDING);
         int x = Mth.clamp(centeredX, TEXT_SCREEN_PADDING, maxX);
-        int y = top - ITEM_NAME_VERTICAL_GAP - minecraft.font.lineHeight;
         y = Math.max(TEXT_SCREEN_PADDING, y);
         event.getGuiGraphics().drawString(minecraft.font, text, x, y, color, false);
     }

@@ -18,6 +18,7 @@ public final class LunchBagItemDecorator implements IItemDecorator {
     private static final LunchBagItemDecorator INSTANCE = new LunchBagItemDecorator();
     private static final int OVERLAY_OFFSET_X = 10;
     private static final int OVERLAY_OFFSET_Y = 7;
+    private static final float OVERLAY_Z_OFFSET = 50.0F;
 
     private LunchBagItemDecorator() {
     }
@@ -36,7 +37,7 @@ public final class LunchBagItemDecorator implements IItemDecorator {
 
         // Draw selected-food preview in the item icon's bottom-right corner.
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(xOffset + OVERLAY_OFFSET_X, yOffset + OVERLAY_OFFSET_Y, 0.0D);
+        guiGraphics.pose().translate(xOffset + OVERLAY_OFFSET_X, yOffset + OVERLAY_OFFSET_Y, OVERLAY_Z_OFFSET);
         guiGraphics.pose().scale(0.4F, 0.4F, 1.0F);
         guiGraphics.renderFakeItem(selectedFood, 0, 0);
         guiGraphics.pose().popPose();

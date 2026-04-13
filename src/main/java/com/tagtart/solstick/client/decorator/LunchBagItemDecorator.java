@@ -6,6 +6,9 @@ import com.tagtart.solstick.item.custom.LunchBagItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -30,7 +33,12 @@ public final class LunchBagItemDecorator implements IItemDecorator {
 
     @Override
     public boolean render(GuiGraphics guiGraphics, Font font, ItemStack stack, int xOffset, int yOffset) {
-        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack, Minecraft.getInstance().player);
+        Player player = Minecraft.getInstance().player;
+        if (player == null) {
+            return false;
+        }
+
+        ItemStack selectedFood = LunchBagItem.getSelectedFoodStack(stack, player);
         if (selectedFood.isEmpty()) {
             return false;
         }
@@ -41,6 +49,14 @@ public final class LunchBagItemDecorator implements IItemDecorator {
         guiGraphics.pose().scale(0.4F, 0.4F, 1.0F);
         guiGraphics.renderFakeItem(selectedFood, 0, 0);
         guiGraphics.pose().popPose();
+
+        // Mirror selected food cooldown using the vanilla GUI overlay render layer.
+        float cooldownPercent = player.getCooldowns().getCooldownPercent(selectedFood.getItem(), 0.0F);
+        if (cooldownPercent > 0.0F) {
+            int top = yOffset + Mth.floor(16.0F * (1.0F - cooldownPercent));
+            int bottom = top + Mth.ceil(16.0F * cooldownPercent);
+            guiGraphics.fill(RenderType.guiOverlay(), xOffset, top, xOffset + 16, bottom, 0x80FFFFFF);
+        }
         return false;
     }
 }

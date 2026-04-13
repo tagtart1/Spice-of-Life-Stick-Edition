@@ -51,7 +51,8 @@ public class LunchBagItem extends Item {
         ItemStack selectedFood = getSelectedFoodStack(heldItem, player);
         FoodProperties selectedFoodProperties = selectedFood.getFoodProperties(player);
         if (!selectedFood.isEmpty() && selectedFoodProperties != null
-                && player.canEat(selectedFoodProperties.canAlwaysEat())) {
+                && player.canEat(selectedFoodProperties.canAlwaysEat())
+                && !player.getCooldowns().isOnCooldown(selectedFood.getItem())) {
             player.startUsingItem(usedHand);
             return InteractionResultHolder.consume(heldItem);
         }
@@ -113,6 +114,9 @@ public class LunchBagItem extends Item {
         NonNullList<ItemStack> storedItems = getStoredItems(stack);
         ItemStack selectedFood = storedItems.get(selectedSlot);
         if (selectedFood.isEmpty() || selectedFood.getFoodProperties(livingEntity) == null) {
+            return stack;
+        }
+        if (livingEntity instanceof Player player && player.getCooldowns().isOnCooldown(selectedFood.getItem())) {
             return stack;
         }
 
@@ -183,7 +187,8 @@ public class LunchBagItem extends Item {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction action,
             Player player, SlotAccess slotAccess) {
-        // Same creative bypass policy as overrideStackedOnOther for consistent behavior.
+        // Same creative bypass policy as overrideStackedOnOther for consistent
+        // behavior.
         boolean creativeBypass = player.getAbilities().instabuild;
         if (action != ClickAction.SECONDARY || (!creativeBypass && !slot.allowModification(player))) {
             return false;
@@ -233,7 +238,8 @@ public class LunchBagItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents,
             TooltipFlag tooltipFlag) {
-        String key = isOpen(stack) ? "tooltip.solstick.lunch_bag.state.open" : "tooltip.solstick.lunch_bag.state.closed";
+        String key = isOpen(stack) ? "tooltip.solstick.lunch_bag.state.open"
+                : "tooltip.solstick.lunch_bag.state.closed";
         Component stateHint = Component.translatable(key, Component.keybind("key.attack"))
                 .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC);
         tooltipComponents.add(stateHint);
@@ -301,7 +307,8 @@ public class LunchBagItem extends Item {
             return null;
         }
 
-        FoodProperties modifiedFoodProperties = createModifiedFoodProperties(selectedFood, defaultFoodProperties, entity);
+        FoodProperties modifiedFoodProperties = createModifiedFoodProperties(selectedFood, defaultFoodProperties,
+                entity);
         return new FoodPreview(selectedFood, defaultFoodProperties, modifiedFoodProperties);
     }
 
@@ -559,7 +566,8 @@ public class LunchBagItem extends Item {
         return 0x5555FF; // Classic blue
     }
 
-    public record FoodPreview(ItemStack stack, FoodProperties defaultFoodProperties, FoodProperties modifiedFoodProperties) {
+    public record FoodPreview(ItemStack stack, FoodProperties defaultFoodProperties,
+            FoodProperties modifiedFoodProperties) {
         public boolean isRotten() {
             for (FoodProperties.PossibleEffect effect : modifiedFoodProperties.effects()) {
                 if (effect.effect().getEffect().value().getCategory() == MobEffectCategory.HARMFUL) {

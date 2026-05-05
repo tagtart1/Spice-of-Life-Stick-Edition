@@ -9,6 +9,8 @@
 
   "tooltip.solstick.lunch_bag.state.closed": "%s para Abrir",
   "tooltip.solstick.lunch_bag.state.open": "%s para Cerrar",
+  "key.categories.solstick": "Spice of Life: Stick Edition",
+  "key.solstick.stomach_overlay": "Mostrar Superposicion del Estomago",
   "sound.solstick.lunch_bag_open": "Se abre la bolsa de almuerzo",
   "sound.solstick.lunch_bag_close": "Se cierra la bolsa de almuerzo",
   "sound.solstick.lunch_bag_insert": "Objeto guardado en la bolsa de almuerzo",

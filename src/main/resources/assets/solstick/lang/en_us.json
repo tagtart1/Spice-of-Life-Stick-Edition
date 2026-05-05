@@ -6,6 +6,8 @@
 
   "tooltip.solstick.lunch_bag.state.closed": "%s to Open",
   "tooltip.solstick.lunch_bag.state.open": "%s to Close",
+  "key.categories.solstick": "Spice of Life: Stick Edition",
+  "key.solstick.stomach_overlay": "Show Stomach Overlay",
   "sound.solstick.lunch_bag_open": "Lunch bag opens",
   "sound.solstick.lunch_bag_close": "Lunch bag closes",
   "sound.solstick.lunch_bag_insert": "Item inserted into lunch bag",

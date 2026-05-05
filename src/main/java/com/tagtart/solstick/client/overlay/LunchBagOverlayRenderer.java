@@ -1,7 +1,7 @@
 package com.tagtart.solstick.client.overlay;
 
-import com.tagtart.solstick.LunchBagOverlayState;
 import com.tagtart.solstick.SOLStick;
+import com.tagtart.solstick.client.state.LunchBagOverlayState;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
 import com.tagtart.solstick.item.custom.LunchBagConstants;

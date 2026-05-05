@@ -1,4 +1,4 @@
-package com.tagtart.solstick;
+package com.tagtart.solstick.client.state;
 
 public final class LunchBagOverlayState {
     private static boolean visible;

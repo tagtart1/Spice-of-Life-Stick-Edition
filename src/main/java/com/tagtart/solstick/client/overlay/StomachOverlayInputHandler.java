@@ -17,9 +17,13 @@ public final class StomachOverlayInputHandler {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        boolean shouldShowOverlay = minecraft.player != null
-                && minecraft.screen == null
-                && ModKeyMappings.STOMACH_OVERLAY.isDown();
-        StomachOverlayState.setVisible(shouldShowOverlay);
+        if (minecraft.player == null || minecraft.screen != null) {
+            StomachOverlayState.hide();
+            return;
+        }
+
+        while (ModKeyMappings.STOMACH_OVERLAY.consumeClick()) {
+            StomachOverlayState.toggle();
+        }
     }
 }

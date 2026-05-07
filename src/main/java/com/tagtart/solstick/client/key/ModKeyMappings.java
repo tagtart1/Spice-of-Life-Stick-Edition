@@ -7,7 +7,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import org.lwjgl.glfw.GLFW;
 
 @EventBusSubscriber(modid = SOLStick.MODID, value = Dist.CLIENT)
 public final class ModKeyMappings {
@@ -15,7 +14,7 @@ public final class ModKeyMappings {
     public static final KeyMapping STOMACH_OVERLAY = new KeyMapping(
             "key.solstick.stomach_overlay",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_P,
+            InputConstants.UNKNOWN.getValue(),
             CATEGORY);
 
     private ModKeyMappings() {

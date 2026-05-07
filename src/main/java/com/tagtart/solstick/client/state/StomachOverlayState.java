@@ -13,4 +13,12 @@ public final class StomachOverlayState {
     public static void setVisible(boolean shouldBeVisible) {
         visible = shouldBeVisible;
     }
+
+    public static void toggle() {
+        visible = !visible;
+    }
+
+    public static void hide() {
+        visible = false;
+    }
 }

@@ -5,8 +5,11 @@ import com.tagtart.solstick.PlayerStomach;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -49,6 +52,43 @@ public final class StomachDisplayData {
         return entries;
     }
 
+    public static List<FoodValueEntry> buildFoodValueEntries(PlayerStomach stomach, LivingEntity entity) {
+        Map<ResourceLocation, Integer> foodMap = stomach.getFoodMap();
+        List<ResourceLocation> sortedFoods = new ArrayList<>(foodMap.keySet());
+        sortedFoods.sort(Comparator.comparing(ResourceLocation::toString));
+
+        List<FoodValueEntry> entries = new ArrayList<>(sortedFoods.size());
+        for (ResourceLocation foodId : sortedFoods) {
+            ItemStack stack = resolveFoodStack(foodId);
+            FoodProperties foodProperties = stack.isEmpty() ? null : stack.getFoodProperties(entity);
+            if (foodProperties == null) {
+                entries.add(new FoodValueEntry(
+                        foodId,
+                        resolveFoodDisplayName(foodId),
+                        stack,
+                        0,
+                        0,
+                        0.0F,
+                        0.0F,
+                        false));
+                continue;
+            }
+
+            int baseNutrition = foodProperties.nutrition();
+            int modifiedNutrition = Math.round(baseNutrition * stomach.getFoodEffectiveness(foodId));
+            entries.add(new FoodValueEntry(
+                    foodId,
+                    resolveFoodDisplayName(foodId),
+                    stack,
+                    modifiedNutrition,
+                    baseNutrition,
+                    computeModifiedSaturation(foodProperties, modifiedNutrition),
+                    foodProperties.saturation(),
+                    true));
+        }
+        return entries;
+    }
+
     public static Component resolveFoodDisplayName(ResourceLocation foodId) {
         Item item = BuiltInRegistries.ITEM.get(foodId);
         if (item == null || item == BuiltInRegistries.ITEM.byId(0)) {
@@ -60,7 +100,7 @@ public final class StomachDisplayData {
     public static ItemStack resolveFoodStack(ResourceLocation foodId) {
         Item item = BuiltInRegistries.ITEM.get(foodId);
         if (item == null || item == BuiltInRegistries.ITEM.byId(0)) {
-            return ItemStack.EMPTY;
+            return new ItemStack(Items.BARRIER);
         }
         return new ItemStack(item);
     }
@@ -77,5 +117,25 @@ public final class StomachDisplayData {
             ResourceLocation foodId,
             Component displayName,
             int percent) {
+    }
+
+    public record FoodValueEntry(
+            ResourceLocation foodId,
+            Component displayName,
+            ItemStack stack,
+            int minNutrition,
+            int maxNutrition,
+            float minSaturation,
+            float maxSaturation,
+            boolean hasFoodProperties) {
+    }
+
+    private static float computeModifiedSaturation(FoodProperties foodProperties, int modifiedNutrition) {
+        int baseNutrition = foodProperties.nutrition();
+        if (baseNutrition <= 0) {
+            return 0.0F;
+        }
+        float saturationModifier = foodProperties.saturation() / (baseNutrition * 2.0F);
+        return modifiedNutrition * saturationModifier * 2.0F;
     }
 }

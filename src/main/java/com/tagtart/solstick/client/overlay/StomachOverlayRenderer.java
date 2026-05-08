@@ -212,6 +212,7 @@ public final class StomachOverlayRenderer {
         int contentWidth = scaledCeil(ITEM_ICON_SIZE + ICON_TEXT_GAP + minecraft.font.width(text));
         int x = left + (width - contentWidth) / 2;
         int y = top + TEXT_PADDING;
+        int textY = Math.round((ITEM_ICON_SIZE - minecraft.font.lineHeight) / 2.0F);
         event.getGuiGraphics().pose().pushPose();
         event.getGuiGraphics().pose().translate(x, y, 0.0F);
         event.getGuiGraphics().pose().scale(COMPACT_SCALE, COMPACT_SCALE, 1.0F);
@@ -220,7 +221,7 @@ public final class StomachOverlayRenderer {
                 minecraft.font,
                 text,
                 ITEM_ICON_SIZE + ICON_TEXT_GAP,
-                (ITEM_ICON_SIZE - minecraft.font.lineHeight) / 2,
+                textY,
                 NEXT_TO_EXIT_COLOR,
                 false);
         event.getGuiGraphics().pose().popPose();
@@ -263,12 +264,12 @@ public final class StomachOverlayRenderer {
      */
     private static void renderQueueSlotIndex(GuiGraphics guiGraphics, Font font, int itemX, int itemY, int oneBasedIndex) {
         String text = Integer.toString(oneBasedIndex);
+        int textX = itemX + Math.round(17.0F - font.width(text) * QUEUE_SLOT_COUNT_SCALE);
+        int textY = itemY + 10;
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(itemX, itemY, 232.0F);
+        guiGraphics.pose().translate(textX, textY, 232.0F);
         guiGraphics.pose().scale(QUEUE_SLOT_COUNT_SCALE, QUEUE_SLOT_COUNT_SCALE, 1.0F);
-        int textX = 19 - 2 * font.width(text);
-        int textY = 9;
-        guiGraphics.drawString(font, text, textX, textY, 0xFFFFFF, true);
+        guiGraphics.drawString(font, text, 0, 0, 0xFFFFFF, true);
         guiGraphics.pose().popPose();
     }
 
@@ -347,7 +348,7 @@ public final class StomachOverlayRenderer {
         FoodIcon minIcon = getHungerIcon(minHunger, halfStep);
         guiGraphics.blitSprite(FOOD_EMPTY_TEXTURE, x, y, HUNGER_ICON_SIZE, HUNGER_ICON_SIZE);
 
-        boolean missingPip = maxIcon != FoodIcon.EMPTY && minIcon == FoodIcon.EMPTY;
+        boolean missingPip = maxIcon != minIcon;
         if (!missingPip || !shouldRenderSaturation()) {
             return;
         }

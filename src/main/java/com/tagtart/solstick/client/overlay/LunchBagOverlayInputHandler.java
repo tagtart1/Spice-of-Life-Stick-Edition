@@ -3,6 +3,7 @@ package com.tagtart.solstick.client.overlay;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.tagtart.solstick.SOLStick;
 import com.tagtart.solstick.client.state.LunchBagOverlayState;
+import com.tagtart.solstick.client.state.StomachOverlayState;
 import com.tagtart.solstick.components.ModDataComponents;
 import com.tagtart.solstick.item.ModItems;
 import com.tagtart.solstick.item.custom.LunchBagConstants;
@@ -101,6 +102,7 @@ public final class LunchBagOverlayInputHandler {
 
         LunchBagOverlayState.setVisible(shouldShowOverlay);
         if (shouldShowOverlay) {
+            StomachOverlayState.hide();
             lockAndRestoreHotbar(player);
         } else if (wasVisible && player != null) {
             swingCosmetically(player, hand);
